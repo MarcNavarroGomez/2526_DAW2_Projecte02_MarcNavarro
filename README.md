@@ -1,67 +1,92 @@
-# 2526_DAW2_Projecte02_MarcNavarro
-📌 Descripción del repositorio
+# 🌟 CASA GMS – Sistema de Gestión de Mesas
 
-Este repositorio contiene el Proyecto 02 Transversal – Reserva de Taules en un Restaurant, desarrollado dentro del ciclo formativo de Desenvolupament d’Aplicacions Web de la família professional d’Informàtica.
+[Ver el Repositorio en GitHub](https://github.com/samuelmartin33/2526_DAW2_Projecte01_Samuel_Guillem_Marc.git)
 
-El objetivo principal es ampliar el Proyecto 01 añadiendo nuevas funcionalidades que permitan:
+¿Buscas optimizar la gestión de mesas y disponibilidad en tu restaurante? **Casa GMS** es la solución.
 
-Reservar recursos (mesas, salas, etc.) en fechas y franjas horarias específicas.
+Este proyecto es un sistema web desarrollado en PHP y MySQL, diseñado para ser la herramienta definitiva que permite a camareros y administradores controlar la ocupación del restaurante en tiempo real, gestionar asignaciones y analizar el rendimiento histórico.
 
-Administrar usuarios con diferentes roles (camareros, gerente, mantenimiento, etc.).
+<br>
 
-Administrar recursos (salas, mesas, sillas) incluyendo la opción de asociar imágenes.
+## 🚀 Características Principales
 
-⚙️ Tecnologías utilizadas
+* 📊 **Panel Principal (Dashboard):** Visión global de la ocupación del restaurante en tiempo real. Estadísticas clave de un vistazo: mesas libres, ocupadas, y porcentaje de ocupación por sala.
+* 🗺️ **Gestión Visual de Salas:** Representación gráfica de las diferentes salas (Comedor 1, Privada 1, Terraza, etc.). Las mesas cambian de color dinámicamente (libre/ocupada) para un control visual instantáneo.
+* 🔐 **Autenticación y Roles:** Página de login segura (`login.php`). El sistema está preparado para gestionar roles (Camareros y Administradores), con permisos diferenciados.
+* ✅ **Asignación y Liberación de Mesas:** Un flujo de trabajo intuitivo para asignar y liberar mesas. El sistema registra qué camarero realiza cada acción y la hora, fundamental para el análisis posterior.
+* 📈 **Página de Histórico y Estadísticas:** Un potente módulo de analítica (`historico.php`) para tomar decisiones. Descubre KPIs, Top 5 de camareros, salas más rentables y horas punta.
+* 🛡️ **Validaciones Robustas:** Seguridad en cada paso. Se implementan validaciones tanto en el lado del cliente (JavaScript) como en el servidor (PHP) para garantizar la integridad de los datos en todos los formularios.
+* 🎨 **Estilos CSS Personalizados:** Una interfaz de usuario limpia y moderna con CSS dedicado para cada vista (login, dashboard, salas, histórico), asegurando una experiencia de usuario agradable.
+* 🔮 **Base de Datos Escalable:** Una estructura de base de datos MySQL (`BBDD.sql`) diseñada para crecer, lista para incorporar futuras funcionalidades como un sistema de reservas, gestión de menús o un panel de administración avanzado.
 
-HTML, CSS, JavaScript (SweetAlert) → Front-end y validación dinámica.
+<br>
 
-PHP (PDO) → Back-end y conexión segura con la base de datos.
+## 🛠️ Tecnologías Utilizadas
 
-MySQL → Gestión de datos y transacciones.
+* **Backend:** PHP (Orientado a objetos y procedural)
+* **Base de Datos:** MySQL con PDO (Consultas preparadas para evitar inyección SQL)
+* **Frontend:** HTML, CSS
+* **Javascript:** Validación de formularios en tiempo real.
+* **PhP:** Validaciones PHP, por si al iluminado se le ocurre desactivar JS ;).
+* **Librerías:** SweetAlert y BootStrap.
 
-Bootstrap 5 → Diseño homogéneo y responsive.
+<br>
 
-Git/GitHub → Control de versiones y sincronización diaria.
+## 🛡️ Integridad de Datos: Transacciones y Rollback
 
-📂 Estructura del proyecto
+La fiabilidad de los datos es crítica. Por ello, las operaciones complejas (como asignar una mesa y, al mismo tiempo, crear un registro en el histórico) se gestionan mediante **Transacciones de Base de Datos (PDO)**.
 
-/frontend → Páginas de usuario (reservas, formularios).
+Esto significa que:
+1.  Se inicia una transacción (`beginTransaction`).
+2.  Se intentan ejecutar todas las operaciones (Ej: `UPDATE` en `mesas`, `INSERT` en `ocupaciones`).
+3.  Si **todas** tienen éxito, se confirman los cambios (`commit`).
+4.  Si **alguna** de ellas falla, se ejecuta un `rollback`, revirtiendo **todos** los cambios.
 
-/backend → Lógica de negocio, procedimientos y consultas PDO.
+**En resumen: O todo se hace bien, o no se hace nada.** Esto garantiza que la base de datos nunca quede en un estado inconsistente o con datos corruptos.
 
-/assets → Recursos estáticos (CSS, imágenes, scripts).
+<br>
 
-/docs → Documentación adicional.
+## 🏁 Puesta en Marcha del Proyecto
 
-README.md → Explicación del funcionamiento, usuarios de prueba y datos necesarios.
+Sigue estos pasos para ejecutar el proyecto en tu entorno local:
 
-🔒 Buenas prácticas implementadas
+1.  **Clonar el Repositorio**
+    ```bash
+    git clone [https://github.com/samuelmartin33/2526_DAW2_Projecte01_Samuel_Guillem_Marc.git](https://github.com/samuelmartin33/2526_DAW2_Projecte01_Samuel_Guillem_Marc.git)
+    ```
 
-Separación clara entre front-end y back-end.
+2.  **Importar la Base de Datos**
+    * Localiza el archivo `BBDD/BBDD.sql`.
+    * Importa el archivo en tu gestor de MySQL (phpMyAdmin, Workbench, DBeaver, etc.) para crear la estructura de tablas y los datos iniciales.
 
-Uso de transacciones en operaciones con múltiples INSERT/UPDATE.
+3.  **Configurar la Conexión**
+    * Navega al archivo de conexión, ubicado en `PHP/CONEXION/conexion.php`.
+    * Edita las variables con tus credenciales de la base de datos:
+        * `$servidor` (ej. "localhost")
+        * `$usuario` (ej. "root")
+        * `$contrasena` (ej. "")
+        * `$base_datos` (ej. "restaurante_gms")
 
-Manejo de errores con try/catch en cada interacción con la base de datos.
+4.  **Configurar la URL Base (¡Crítico!)**
+    * En el mismo archivo `conexion.php` o en un archivo de configuración principal, asegúrate de definir la `BASE_URL`. Esto es esencial para que las rutas y redirecciones funcionen correctamente.
+    * ```php
+        DEFINE('BASE_URL', 'http://localhost/2526_DAW2_Projecte01_Samuel_Guillem_Marc/');
+        ```
 
-Commits frecuentes y descriptivos.
+5.  **Iniciar el Servidor**
+    * Asegúrate de que tu servidor local (XAMPP, WAMP, MAMP) esté ejecutando Apache y MySQL.
+    * Abre tu navegador y accede a la `BASE_URL` que configuraste.
 
-Diseño homogéneo en todas las vistas (producción y administración).
+6.  **Acceder al Sistema**
+    * Serás redirigido a la página de login: `(BASE_URL)/PHP/PUBLIC/login.php`
+    * Utiliza las credenciales de un usuario (camarero) incluidas en la base de datos para acceder.
 
-🧪 Usuarios de prueba
-Administrador → acceso completo a CRUD de usuarios y recursos.
+<br>
 
-Camarero → acceso a reservas.
+## 🗺️ Roadmap (Próximas Funcionalidades)
 
-Gerente → acceso a informes y gestión avanzada.
+Este proyecto está en desarrollo activo. Las siguientes características están planificadas:
 
-Mantenimiento → acceso limitado a recursos.
-
-(Los credenciales de prueba se detallan en este README para facilitar la validación del proyecto.)
-
-📊 Evaluación académica
-
-Seguimiento: 10%
-
-Validación: 35%
-
-Producto final: 55%
+* [ ] **Panel de Administración:** Una sección protegida para que los administradores puedan gestionar usuarios, salas y mesas.
+* [ ] **Sistema de Reservas:** Permitir a los clientes o al personal crear reservas para una fecha y hora específicas.
+* [ ] **Gestión de Menús:** Asociar comandas a las mesas.

@@ -1,0 +1,65 @@
+/*
+ * Estilos específicos para terraza3.php
+ */
+
+.sala-layout.terraza3 {
+    /* CAMBIO: Nueva imagen de fondo */
+    background-image: url('../img/terraza3.png');
+}
+
+/* * Posicionamiento de las 4 mesas para Terraza 3
+ * (IDs 9, 10, 11, 12 según tu BBDD)
+ */
+
+/* (Mesa T3-1) */
+#mesa-9 {
+    top: 15%;
+    left: 35%;
+}
+
+/* (Mesa T3-2) */
+#mesa-10 {
+    top: 15%;
+    left: 55%;
+}
+
+/* (Mesa T3-3) */
+#mesa-11 {
+    top: 55%;
+    left: 25%;
+}
+
+/* (Mesa T3-4) */
+#mesa-12 {
+    top: 55%;
+    left: 65%;
+}
+
+/* ==============================================
+   RESPONSIVE MÓVIL
+   ============================================== */
+@media (max-width: 899px) {
+    /* (Mesa T3-1) */
+    #mesa-9 {
+        top: 25%; /* +10% (Abajo) */
+        left: 15%; /* -15% (Izquierda) */
+    }
+
+    /* (Mesa T3-2) */
+    #mesa-10 {
+        top: 25%; /* +10% (Abajo) */
+        left: 55%; /* -5% (Ajuste menor) */
+    }
+
+    /* (Mesa T3-3) */
+    #mesa-11 {
+        top: 58%; /* +10% (Abajo) */
+        left: 15%; /* -10% (Izquierda) */
+    }
+
+    /* (Mesa T3-4) */
+    #mesa-12 {
+        top: 58%; /* +10% (Abajo) */
+        left: 65%; /* -10% (Izquierda) */
+    }
+}

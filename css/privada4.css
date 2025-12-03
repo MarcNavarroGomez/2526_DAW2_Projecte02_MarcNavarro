@@ -1,0 +1,18 @@
+/*
+ * Estilos específicos para privada4.php
+ */
+
+.sala-layout.privada4 {
+    /* Fondo de la sala */
+    background-image: url('../img/privada4.png');
+    background-position: center;
+    background-size: cover;
+}
+
+/* * Posiciona la única mesa (ID 24) en el centro 
+ */
+#mesa-24 {
+    top: 65%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

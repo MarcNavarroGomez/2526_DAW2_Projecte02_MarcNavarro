@@ -1,0 +1,513 @@
+/* ==========================
+ IMPORTACIONES Y ROOT
+ ========================== */
+
+/* Importa la fuente "Poppins" desde Google Fonts para usarla en la página */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* Define variables CSS globales (colores, sombras, etc.) para reutilizar en todo el sitio */
+:root {
+  /* Variables de color principales */
+  --rojo-gms: #c94736;
+  --rojo-hover: #b33e2f;
+  --gris-fondo: #f9f9f9;
+  --gris-claro: #ececec;
+  --gris-texto: #555;
+  
+  /* Variables de estilo reutilizables */
+  --sombra: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --radio: 12px;
+
+  /* Colores de estadisticas.php (gradientes) */
+  --primary-gradient: linear-gradient(135deg, #c94736 0%, #b33e2f 100%);
+  --success-gradient: linear-gradient(135deg, #28a745 0%, #218838 100%);
+  --danger-gradient: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  --info-gradient: linear-gradient(135deg, #0dcaf0 0%, #0a9cb5 100%);
+}
+
+/* ==========================
+ ESTILO GENERAL
+ ========================== */
+
+/* Selector universal: resetea márgenes, paddings y ajusta el modelo de caja */
+* {
+  margin: 0; /* Quita el margen exterior por defecto */
+  padding: 0; /* Quita el relleno interior por defecto */
+  box-sizing: border-box; /* El padding y borde no aumentan el tamaño total del elemento */
+  font-family: "Poppins", sans-serif; /* Aplica la fuente Poppins a todos los elementos */
+}
+
+/* Estilos para el HTML */
+html {
+  scroll-behavior: smooth; /* Habilita el desplazamiento suave al hacer clic en anclas (links #) */
+}
+
+/* Estilos para el cuerpo (body) de la página */
+body {
+  /* Fondo de la página */
+  background-color: #f4f7f9; /* Color de fondo de respaldo si la imagen no carga */
+  background-image: url('../img/fondo_panel_principal.png'); /* Ruta a la imagen de fondo */
+  background-size: cover; /* Escala la imagen para cubrir todo el espacio */
+  background-attachment: fixed; /* Fija la imagen de fondo; no se mueve con el scroll */
+  background-position: center 50%; /* Centra la imagen de fondo */
+  
+  color: #333; /* Color de texto por defecto */
+  min-height: 100vh; /* Asegura que el body ocupe al menos el 100% de la altura de la ventana */
+}
+
+/* ==========================
+ HEADER SUPERIOR
+ ========================== */
+.main-header {
+  background-color: #ce4535; /* Color de fondo rojo para la cabecera */
+  color: white; /* Color de texto blanco */
+  display: flex; /* Usa Flexbox para alinear los elementos hijos */
+  justify-content: space-between; /* Distribuye los hijos: logo a la izquierda, menú a la derecha */
+  align-items: center; /* Centra verticalmente los elementos hijos */
+  padding: 20px 40px; /* Relleno interior (20px arriba/abajo, 40px izq/der) */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Sombra sutil debajo de la cabecera */
+  position: relative; /* Contexto de posicionamiento */
+  z-index: 10; /* Asegura que la cabecera esté por encima de otros elementos */
+}
+
+/* --- Logo GMS (Imagen + Texto) --- */
+.header-logo {
+  display: flex; /* Usa Flexbox */
+  align-items: center; /* Centra verticalmente la imagen y el texto del logo */
+  gap: 10px; /* Espacio de 10px entre la imagen y el texto */
+}
+
+.header-logo img {
+  height: 70px; /* Altura fija para la imagen del logo */
+}
+
+/* Contenedor para los textos del logo (título y subtítulo) */
+.logo-text {
+  display: flex; /* Usa Flexbox */
+  flex-direction: column; /* Apila los textos verticalmente */
+  line-height: 1.1; /* Interlineado ajustado */
+}
+
+/* Título "GMS" */
+.gms-title {
+  font-size: 2.0rem; /* Tamaño de fuente grande */
+  font-weight: 800; /* Fuente muy gruesa (extra-bold) */
+  letter-spacing: 1px; /* Espaciado entre letras */
+}
+
+/* Subtítulo "Gestión de Mesas y Sillas" */
+.gms-subtitle {
+  font-size: 0.7rem; /* Tamaño de fuente pequeño */
+  font-weight: 300; /* Fuente ligera (light) */
+  opacity: 0.9; /* Ligera transparencia */
+}
+
+/* Saludo (Ej: "Bienvenido,") */
+.header-greeting {
+  flex: 1; /* Permite que este elemento crezca y ocupe el espacio central */
+  text-align: center; /* Centra el texto */
+  font-weight: 600; /* Fuente semi-bold */
+  font-size: 1.05rem; /* Tamaño de fuente */
+}
+
+/* Etiqueta con el nombre de usuario */
+.username-tag {
+  font-weight: 700; /* Fuente gruesa (bold) */
+  background-color: rgba(255, 255, 255, 0.2); /* Fondo blanco semitransparente */
+  padding: 5px 10px; /* Relleno interior */
+  border-radius: 20px; /* Bordes redondeados (forma de píldora) */
+  margin-left: 10px; /* Margen izquierdo para separar del saludo */
+}
+
+/* Contenedor del menú de navegación */
+.header-menu {
+  display: flex; /* Usa Flexbox */
+  align-items: center; /* Centra verticalmente los enlaces */
+  gap: 15px; /* Espacio entre los enlaces */
+  margin-right: 30px; /* Margen derecho para separar del borde */
+}
+
+/* Estilo para cada enlace de navegación (ej: "Panel", "Histórico") */
+.nav-link {
+  color: white; /* Color de texto blanco */
+  text-decoration: none; /* Quita el subrayado */
+  font-weight: 500; /* Fuente medium */
+  transition: 0.3s; /* Animación suave para cambios (hover) */
+  padding: 8px 12px; /* Relleno interior */
+  border-radius: 8px; /* Bordes ligeramente redondeados */
+}
+
+/* Estilo al pasar el ratón (hover) sobre un enlace */
+.nav-link:hover {
+  color: #ffe3dc; /* Color de texto más claro */
+  text-decoration: none; /* Asegura que no haya subrayado */
+  background-color: rgba(255, 255, 255, 0.1); /* Fondo blanco semitransparente */
+}
+
+/* Estilo para el enlace de la página activa (actual) */
+.nav-link.active {
+  background-color: rgba(0, 0, 0, 0.2); /* Fondo oscuro semitransparente */
+  font-weight: 600; /* Fuente más gruesa (semi-bold) */
+}
+
+/* Estilo para el formulario que contiene el botón de logout */
+.logout-section form {
+  margin: 0; /* Quita el margen por defecto del formulario */
+}
+
+/* Botón de "Cerrar Sesión" */
+.logout-btn {
+  background-color: white; /* Fondo blanco */
+  color: var(--rojo-gms); /* Texto rojo (usa la variable CSS) */
+  border: none; /* Sin borde */
+  padding: 8px 18px; /* Relleno interior */
+  border-radius: 999px; /* Bordes totalmente redondeados (píldora) */
+  font-weight: 600; /* Fuente semi-bold */
+  cursor: pointer; /* Muestra el cursor "mano" */
+  transition: 0.3s; /* Animación suave */
+}
+
+/* Estilo hover para el botón de logout */
+.logout-btn:hover {
+  background-color: #f0f0f0; /* Fondo gris claro */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Sombra sutil */
+}
+
+/* (Reglas duplicadas, se aplican los mismos comentarios) */
+.header-greeting {
+  font-size: 1.4rem;
+  font-weight: 500;
+  flex-grow: 1; 
+  text-align: center;
+}
+.username-tag {
+  font-weight: 700;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 5px 10px;
+  border-radius: 20px;
+  margin-left: 10px;
+}
+
+/* ==========================
+ ESTILOS DASHBOARD
+ ========================== */
+
+/* Contenedor principal del contenido (debajo de la cabecera) */
+.main-content {
+  padding-top: 20px; /* Espacio superior para separar de la cabecera */
+}
+
+/* Estilo de tarjeta "efecto cristal" */
+.glass-card {
+  background: rgba(255, 255, 255, 0.95); /* Fondo blanco semitransparente */
+  backdrop-filter: blur(5px); /* Desenfoca el contenido *detrás* de la tarjeta */
+  border-radius: 15px; /* Bordes redondeados */
+  border: 1px solid rgba(255, 255, 255, 0.18); /* Borde sutil */
+  box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.1); /* Sombra para dar profundidad */
+  transition: all 0.3s ease; /* Animación suave */
+  height: 100%; /* Ocupa el 100% de la altura de su contenedor padre (grid) */
+}
+
+/* Tarjetas de Métricas (KPIs) */
+.metric-card {
+  background: var(--primary-gradient); /* Fondo con gradiente (rojo por defecto) */
+  color: white; /* Texto blanco */
+  border-radius: 20px; /* Bordes redondeados */
+  padding: 1.5rem; /* Relleno interior */
+  text-align: center; /* Texto centrado */
+  position: relative; /* Contexto para el icono posicionado absolutamente */
+  overflow: hidden; /* Oculta el icono si se desborda */
+  transition: all 0.3s ease; /* Animación suave */
+  height: 100%; /* Ocupa el 100% de la altura de su contenedor padre */
+}
+
+/* Efecto hover para las tarjetas de métricas */
+.metric-card:hover {
+  transform: translateY(-5px); /* Mueve la tarjeta 5px hacia arriba */
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2); /* Sombra más pronunciada */
+}
+
+/* Modificadores de color para las tarjetas de métricas */
+.metric-card.success { background: var(--success-gradient); } /* Fondo verde */
+.metric-card.danger { background: var(--danger-gradient); } /* Fondo rojo (diferente) */
+.metric-card.info { background: var(--info-gradient); } /* Fondo azul */
+
+/* Estilo para el número grande (el dato) */
+.metric-number {
+  font-size: 2.8rem; /* Tamaño de fuente muy grande */
+  font-weight: bold; /* Fuente gruesa */
+  margin: 0; /* Sin margen */
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.2); /* Sombra de texto para legibilidad */
+}
+
+/* Estilo para la etiqueta (texto pequeño debajo del número) */
+.metric-label {
+  font-size: 1rem; /* Tamaño de fuente normal */
+  opacity: 0.9; /* Ligera transparencia */
+  margin-top: 0.25rem; /* Pequeño margen superior */
+}
+
+/* Icono decorativo de fondo en las tarjetas de métricas */
+.metric-icon {
+  position: absolute; /* Posicionamiento absoluto */
+  top: 20px; /* 20px desde arriba */
+  right: 20px; /* 20px desde la derecha */
+  font-size: 2rem; /* Tamaño del icono */
+  opacity: 0.2; /* Muy transparente */
+}
+
+/* Estilo para la "tendencia" (ej. +5% hoy) */
+.metric-trend {
+  font-size: 0.9rem; /* Tamaño de fuente pequeño */
+  margin-top: 0.5rem; /* Margen superior */
+  display: flex; /* Usa Flexbox */
+  align-items: center; /* Centra verticalmente (ej. icono de flecha y texto) */
+  justify-content: center; /* Centra horizontalmente */
+  gap: 5px; /* Espacio entre icono y texto */
+  opacity: 0.8; /* Ligera transparencia */
+}
+
+/* Encabezados de Sección (ej. "Histórico de Ocupación") */
+.section-header {
+  display: flex; /* Usa Flexbox */
+  align-items: center; /* Centra verticalmente */
+  justify-content: space-between; /* Título a la izquierda, filtros a la derecha */
+  margin-bottom: 1.5rem; /* Margen inferior */
+  padding-bottom: 1rem; /* Relleno inferior */
+  border-bottom: 2px solid rgba(0,0,0,0.05); /* Línea divisoria sutil */
+}
+
+/* Título de la sección */
+.section-title {
+  font-size: 1.3rem; /* Tamaño de fuente */
+  font-weight: 600; /* Fuente semi-bold */
+  color: #333; /* Color de texto oscuro */
+  display: flex; /* Usa Flexbox */
+  align-items: center; /* Centra (para icono y texto) */
+  gap: 10px; /* Espacio entre icono y texto */
+}
+
+/* ==========================
+ FORMULARIO DE FILTROS
+ ========================== */
+.filter-form-inline {
+  background: rgba(0, 0, 0, 0.02); /* Fondo muy sutil */
+  padding: 1rem; /* Relleno interior */
+  border-radius: var(--radio); /* Bordes redondeados (usa variable) */
+  margin-bottom: 1.5rem; /* Margen inferior */
+}
+
+/* Etiquetas (labels) pequeñas dentro del formulario de filtros */
+.filter-form-inline .form-label-sm {
+  font-size: 0.8rem; /* Tamaño de fuente pequeño */
+  font-weight: 500; /* Fuente medium */
+  color: #555; /* Color gris oscuro */
+  margin-bottom: 0.25rem; /* Margen inferior pequeño */
+}
+
+/* ==========================
+ TABLA DE RESULTADOS
+ ========================== */
+
+/* Contenedor de la tabla para hacerla responsive (scroll horizontal) */
+.table-responsive {
+  border: 1px solid #eee; /* Borde sutil */
+  border-radius: 8px; /* Bordes redondeados */
+}
+
+/* Celdas (td) y cabeceras (th) de la tabla (versión "small") */
+.table-sm th,
+.table-sm td {
+  padding: 0.5rem 0.6rem; /* Relleno interior reducido */
+  font-size: 0.85rem; /* Tamaño de fuente pequeño */
+  vertical-align: middle; /* Centra el contenido verticalmente */
+}
+
+/* Efecto hover en las filas (tbody tr) de la tabla */
+.table-hover tbody tr:hover {
+  background-color: #f7f7f7; /* Fondo gris claro al pasar el ratón */
+}
+
+/* ==========================
+ NUEVOS: GRÁFICOS PHP
+ ========================== */
+
+/* Contenedor para los gráficos de barras */
+.bar-chart-container {
+  width: 100%; /* Ocupa todo el ancho */
+  margin-top: 1.5rem; /* Margen superior */
+  padding: 1rem; /* Relleno interior */
+  background: #fdfdfd; /* Fondo casi blanco */
+  border-radius: 8px; /* Bordes redondeados */
+  border: 1px solid #eee; /* Borde sutil */
+}
+
+/* Contenedor de gráfico con scroll (para el gráfico de horas) */
+.bar-chart-container-scroll {
+  width: 100%; /* Ocupa todo el ancho */
+  margin-top: 1.5rem; /* Margen superior */
+  padding: 1rem; /* Relleno interior */
+  background: #fdfdfd; /* Fondo casi blanco */
+  border-radius: 8px; /* Bordes redondeados */
+  border: 1px solid #eee; /* Borde sutil */
+  max-height: 300px; /* Altura máxima antes de activar el scroll */
+  overflow-y: auto; /* Muestra el scroll vertical solo si es necesario */
+}
+
+/* Fila individual del gráfico de barras (Etiqueta + Barra) */
+.bar-row {
+  display: flex; /* Usa Flexbox */
+  align-items: center; /* Centra verticalmente */
+  margin-bottom: 12px; /* Espacio entre filas */
+  font-size: 0.9rem; /* Tamaño de fuente */
+}
+
+/* Etiqueta de la barra (ej. "Comedor 1", "10:00") */
+.bar-label {
+  width: 120px; /* Ancho fijo para alinear las barras */
+  font-weight: 500; /* Fuente medium */
+  color: #555; /* Color gris oscuro */
+  white-space: nowrap; /* Evita que el texto salte de línea */
+  overflow: hidden; /* Oculta el texto que no cabe */
+  text-overflow: ellipsis; /* Muestra "..." si el texto se corta */
+  padding-right: 10px; /* Relleno derecho */
+  flex-shrink: 0; /* Evita que la etiqueta se encoja si no hay espacio */
+}
+
+/* Contenedor de la barra (el fondo gris claro) */
+.bar-wrap {
+  flex-grow: 1; /* Ocupa el espacio restante */
+  background: #f0f0f0; /* Fondo gris claro */
+  border-radius: 5px; /* Bordes redondeados */
+  height: 20px; /* Altura de la barra */
+  display: flex; /* Usa Flexbox */
+  align-items: center; /* Centra (aunque la barra hija ocupe el 100% de altura) */
+}
+
+/* La barra de color que representa el valor */
+.bar {
+  height: 100%; /* Ocupa toda la altura del .bar-wrap */
+  background: var(--rojo-gms); /* Color rojo (variable) por defecto */
+  border-radius: 5px; /* Bordes redondeados */
+  min-width: 1px; /* Ancho mínimo para que sea visible incluso con valor 0 */
+  transition: width 0.5s ease-out; /* Animación suave de la anchura */
+  white-space: nowrap; /* Evita saltos de línea (si tuviera texto dentro) */
+}
+
+/* Colores alternativos para las barras (basado en la tarjeta que las contiene) */
+/* Selector :nth-child(n) selecciona el n-ésimo hijo de un padre */
+.glass-card:nth-child(2) .bar {
+  background: var(--rojo-hover); /* Segundo .glass-card usará rojo oscuro */
+}
+.glass-card:nth-child(3) .bar {
+  background: var(--info-gradient); /* Tercer .glass-card usará azul */
+}
+.glass-card:nth-child(4) .bar {
+  background: var(--success-gradient); /* Cuarto .glass-card usará verde */
+}
+
+/* Valor numérico al final de la barra */
+.bar-value {
+  font-weight: 600; /* Fuente semi-bold */
+  margin-left: 10px; /* Espacio para separar de la barra */
+  color: #333; /* Color oscuro */
+}
+
+/* ==========================
+ RESPONSIVE
+ ========================== */
+
+@media (max-width: 900px) {
+  
+  .main-header {
+    flex-direction: row; /* Mantiene la dirección de fila */
+    flex-wrap: wrap; /* Permite que los elementos salten a la línea siguiente */
+    justify-content: center; /* Centra los elementos (útil para la última fila: menú y logout) */
+    gap: 15px; /* Espacio entre elementos */
+  }
+
+  /* Orden 1 (Arriba) y centrado */
+  .header-logo {
+    order: 1; /* Primer elemento en el orden visual */
+    width: 100%; /* Ocupa todo el ancho */
+    justify-content: center; /* Centra el logo */
+    flex-grow: 0; /* No crece */
+  }
+
+  /* Orden 2 (Medio) y centrado */
+  .header-greeting {
+    order: 2; /* Segundo elemento */
+    width: 100%; /* Ocupa todo el ancho */
+    text-align: center; /* Centra el texto */
+    font-size: 1.1rem; /* Reduce el tamaño de fuente */
+    margin-bottom: 0; /* Quita margen inferior */
+    flex: 1 1 100%; /* Asegura que ocupe todo el ancho */
+  }
+
+  /* Orden 3, vuelve a ser fila */
+  .header-menu {
+    order: 3; /* Tercer elemento (junto con logout) */
+    flex-direction: row; /* Mantiene los enlaces en fila */
+    align-items: center; /* Centra verticalmente */
+    gap: 20px; /* Espacio entre enlaces */
+    width: auto; /* Ancho automático */
+    margin-right: 0; /* Resetea el margen derecho */
+    margin-top: 0; /* Resetea el margen superior */
+    justify-content: center; /* Centra el menú */
+  }
+
+  /* El formulario de logout también es orden 3 */
+  .main-header form {
+    order: 3; /* Tercer elemento */
+    margin: 0; /* Sin margen */
+  }
+
+  /* Ocultamos el texto del botón de logout */
+  .logout-btn {
+    order: 3; /* Tercer elemento */
+    width: auto; /* Ancho automático */
+    font-size: 0; /* Oculta el texto "Cerrar Sesión" */
+    padding: 10px 12px; /* Ajusta el padding para el icono (más cuadrado) */
+    padding: 8px 10px; /* Ajuste fino del padding */
+  }
+
+  /* Hacemos el icono visible de nuevo (estaba oculto por font-size: 0 en el padre) */
+  .logout-btn i {
+    font-size: 1.1rem; /* Restaura el tamaño del icono */
+    margin-right: 0; /* Quita el margen derecho (ya no hay texto) */
+  }
+  
+  /* Ajusta los enlaces de navegación */
+  .nav-link {
+    font-size: 1rem; /* Reduce tamaño de fuente */
+    padding: 6px 10px; /* Reduce relleno */
+  }
+}
+
+/* Estilos para pantallas de 768px o menos (móviles) */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 10px; /* Reduce el padding general */
+    padding-top: 10px; /* Reduce el padding superior */
+  }
+  .metric-number {
+    font-size: 2.2rem; /* Reduce el tamaño del número KPI */
+  }
+  .metric-label {
+    font-size: 0.9rem; /* Reduce el tamaño de la etiqueta KPI */
+  }
+  .section-title {
+    font-size: 1.1rem; /* Reduce el tamaño del título de sección */
+  }
+  .bar-label {
+    width: 90px; /* Reduce el ancho de la etiqueta del gráfico */
+    font-size: 0.8rem; /* Reduce la fuente de la etiqueta */
+  }
+  .bar-value {
+    font-size: 0.8rem; /* Reduce la fuente del valor */
+  }
+  /* En el formulario de filtros, el botón pasa a la línea siguiente */
+  .filter-form-inline .btn {
+    margin-top: 10px; 
+  }
+}

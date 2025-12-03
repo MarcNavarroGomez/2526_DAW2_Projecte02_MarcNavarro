@@ -1,0 +1,18 @@
+/*
+ * Estilos específicos para privada3.php
+ */
+
+.sala-layout.privada3 {
+    /* Fondo de la sala */
+    background-image: url('../img/privada3.png');
+    background-position: center;
+    background-size: cover;
+}
+
+/* * Posiciona la única mesa (ID 23) en el centro 
+ */
+#mesa-23 {
+    top: 65%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

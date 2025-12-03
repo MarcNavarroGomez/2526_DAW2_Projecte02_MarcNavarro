@@ -1,0 +1,19 @@
+/*
+ * Este fichero sobrescribe el tamaño de las mesas
+ * SOLO para las salas privadas.
+ */
+
+.mesa-img {
+    width: 400px; /* Tamaño "mucho más grande" (ESCRITORIO) */
+    height: auto;
+}
+
+/* ==============================================
+   RESPONSIVE MÓVIL
+   ============================================== */
+@media (max-width: 899px) {
+    .mesa-img {
+        /* Hacemos la imagen más pequeña en móvil */
+        width: 350px; 
+    }
+}

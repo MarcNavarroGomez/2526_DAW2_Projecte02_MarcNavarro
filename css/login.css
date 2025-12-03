@@ -1,0 +1,268 @@
+/* --- Importar Fuente Poppins --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* --- Reseteo Básico y Estilos Globales --- */
+* {
+    margin: 0; /* Quita márgenes exteriores */
+    padding: 0; /* Quita rellenos interiores */
+    box-sizing: border-box; /* Ajusta el modelo de caja */
+}
+
+/* Estilos para HTML y Body */
+html, body {
+    height: 100%; /* Ocupan el 100% de la altura de la ventana */
+    font-family: 'Poppins', sans-serif; /* Fuente por defecto */
+    color: #333; /* Color de texto por defecto */
+}
+
+/* Estilos para el Body */
+body {
+    /* Fondo de la imagen */
+    background-image: url('../img/fondo_login.png'); /* Imagen de fondo */
+    background-size: cover; /* Escala la imagen para cubrir todo */
+    background-position: center 80%; /* Centra la imagen y la baja (80% desde arriba) */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+    
+    overflow: hidden; /* Oculta el scroll (en vista de escritorio) */
+    position: relative; /* Contenedor base para posicionamiento absoluto */
+}
+
+/* --- Elementos de la Interfaz (Logo superior y Menú) --- */
+
+/* Logo superior (visible en responsive) */
+.top-logo {
+    position: absolute; /* Posicionamiento absoluto */
+    top: 20px; /* 20px desde arriba */
+    left: 50%; /* 50% desde la izquierda */
+    transform: translateX(-50%); /* Centra horizontalmente */
+    display: flex; /* Usa Flexbox */
+    flex-direction: column; /* Apila elementos (aunque solo hay imagen) */
+    align-items: center; /* Centra */
+}
+
+.top-logo img {
+    height: 145px; /* Altura de la imagen del logo */
+}
+
+/* Icono de menú (hamburguesa) */
+.menu-icon {
+    position: absolute; /* Posicionamiento absoluto */
+    top: 40px; /* 40px desde arriba */
+    right: 40px; /* 40px desde la derecha */
+    width: 30px; /* Ancho del icono */
+    height: 22px; /* Alto del icono */
+    display: flex; /* Usa Flexbox */
+    flex-direction: column; /* Apila las 3 líneas */
+    justify-content: space-between; /* Distribuye las líneas verticalmente */
+    cursor: pointer; /* Cursor de mano */
+}
+
+/* Las 3 líneas del icono hamburguesa */
+.menu-icon span {
+    width: 100%; /* Ocupan todo el ancho del .menu-icon */
+    height: 4px; /* Grosor de la línea */
+    background-color: #555; /* Color de la línea */
+    border-radius: 2px; /* Bordes redondeados */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Sombra sutil */
+}
+
+
+/* --- Tarjeta Logo Izquierda (Casa GMS) --- */
+.logo-card {
+    position: absolute; /* Posicionamiento absoluto */
+    left: 5vw; /* 5% del ancho de la ventana, desde la izquierda */
+    top: 50%; /* 50% desde arriba */
+    transform: translateY(-50%); /* Centra verticalmente */
+    
+    width: 450px; /* Ancho fijo */
+    background-color: #ffffff; /* Fondo blanco */
+    border-radius: 24px; /* Bordes muy redondeados */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Sombra */
+    
+    padding: 0; /* Sin relleno */
+    overflow: hidden; /* Oculta la imagen que se salga de los bordes redondeados */
+}
+
+.logo-card img {
+    width: 100%; /* La imagen ocupa todo el ancho de la tarjeta */
+    height: auto; /* Altura automática (mantiene proporción) */
+    display: block; /* Elimina espacio extra debajo de la imagen */
+}
+
+/* --- Contenedor Formulario Derecha (El Login) --- */
+.login-container {
+    /* Estilo de tarjeta */
+    background-color: #ffffff; /* Fondo blanco */
+    border-radius: 24px; /* Bordes muy redondeados */
+    padding: 30px; /* Relleno interior */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Sombra */
+
+    /* Posicionamiento y Tamaño */
+    position: absolute; /* Posicionamiento absoluto */
+    right: 5vw; /* 5% del ancho de la ventana, desde la derecha */
+    top: 50%; /* 50% desde arriba */
+    transform: translateY(-50%); /* Centra verticalmente */
+
+    width: 450px; /* Ancho fijo (igual que .logo-card) */
+}
+
+/* --- ESTILO DEL TÍTULO DE LOGIN --- */
+.login-title {
+    font-family: 'Poppins', sans-serif; /* Fuente Poppins */
+    font-size: 2.0rem; /* Tamaño de fuente */
+    font-weight: 700; /* Fuente gruesa (bold) */
+    letter-spacing: 2px; /* Espaciado entre letras */
+    color: #333; /* Color oscuro */
+    text-align: center; /* Centrado */
+    
+    padding-bottom: 10px; /* Relleno inferior (para separar de la línea) */
+    border-bottom: 4px solid #d9534f; /* Línea roja decorativa */
+    display: block; /* Comportamiento de bloque */
+    width: 40%; /* Ancho de la línea (40% del contenedor) */
+    margin: 0 auto 40px auto; /* Centra el título y añade 40px de margen inferior */
+}
+
+/* Estilo del formulario */
+form {
+    display: flex; /* Usa Flexbox */
+    flex-direction: column; /* Apila los campos verticalmente */
+    gap: 30px; /* Espacio de 30px entre cada campo */
+}
+
+/* --- Estilo de los Inputs (Select y Password) --- */
+.input-group {
+    position: relative; /* Contexto para posicionar el icono */
+    display: flex; /* Usa Flexbox */
+    align-items: center; /* Centra verticalmente (icono y campo) */
+}
+
+/* Icono (Font Awesome) dentro del grupo */
+.input-group i.fa-solid {
+    position: absolute; /* Posicionamiento absoluto (relativo a .input-group) */
+    left: 25px; /* 25px desde la izquierda */
+    color: #888; /* Color gris */
+    font-size: 1.3em; /* Tamaño del icono */
+    z-index: 2; /* Asegura que el icono esté sobre el campo */
+}
+
+/* Estilo común para <select> y <input> */
+.input-group select,
+.input-group input[type="password"] {
+    width: 100%; /* Ocupa todo el ancho */
+    padding: 24px 25px 24px 65px; /* Relleno (65px a la izquierda para el icono) */
+    font-size: 1.15rem; /* Tamaño de fuente */
+    
+    border: none; /* Sin borde */
+    border-radius: 50px; /* Bordes redondeados (píldora) */
+    font-family: 'Poppins', sans-serif; /* Fuente Poppins */
+    background-color: #f7f7f7; /* Fondo gris claro */
+    box-shadow: none; /* Sin sombra */
+    outline: none; /* Quita el borde de foco por defecto */
+    transition: box-shadow 0.2s ease; /* Animación suave para el foco */
+    -webkit-appearance: none; /* Quita estilos por defecto de Safari/Chrome (para <select>) */
+    -moz-appearance: none; /* Quita estilos por defecto de Firefox (para <select>) */
+    appearance: none; /* Quita estilos por defecto (para <select>) */
+}
+
+/* Estilo al hacer foco (clic) en los campos */
+.input-group select:focus,
+.input-group input[type="password"]:focus {
+    box-shadow: 0 0 0 2px #d9534f; /* Añade un "borde" rojo (usando sombra) */
+    background-color: #ffffff; /* Fondo blanco al hacer foco */
+}
+
+/* Estilos para los placeholders y opciones del select */
+.input-group input::placeholder { color: #999; } /* Color del placeholder */
+.input-group select:invalid { color: #999; } /* Color de la opción deshabilitada (ej. "Seleccione...") */
+.input-group select option { color: #333; } /* Color de las opciones normales */
+
+/* Flecha personalizada para el <select> */
+.input-group.select-wrapper::after {
+    content: '\f078'; /* Código del icono de flecha hacia abajo (Font Awesome) */
+    font-family: 'Font Awesome 6 Free'; /* Fuente de Font Awesome */
+    font-weight: 900; /* Grosor del icono */
+    position: absolute; /* Posicionamiento absoluto */
+    right: 30px; /* 30px desde la derecha */
+    color: #888; /* Color gris */
+    pointer-events: none; /* Evita que la flecha sea clicable (el <select> lo es) */
+}
+
+/* --- Botón de Iniciar Sesión --- */
+button[type="submit"] {
+    padding: 24px 25px; /* Relleno grande */
+    font-size: 1.3rem; /* Tamaño de fuente grande */
+    border: none; /* Sin borde */
+    border-radius: 50px; /* Bordes redondeados (píldora) */
+    background-color: #d9534f; /* Color rojo */
+    color: white; /* Texto blanco */
+    font-family: 'Poppins', sans-serif; /* Fuente Poppins */
+    font-weight: 600; /* Fuente semi-bold */
+    cursor: pointer; /* Cursor de mano */
+    box-shadow: 0 8px 20px rgba(217, 83, 79, 0.3); /* Sombra roja sutil */
+    transition: all 0.3s ease; /* Animación suave */
+}
+
+/* Efecto hover para el botón */
+button[type="submit"]:hover {
+    background-color: #c9302c; /* Rojo más oscuro */
+    box-shadow: 0 10px 25px rgba(217, 83, 79, 0.4); /* Sombra más intensa */
+    transform: translateY(-2px); /* Mueve el botón 2px hacia arriba */
+}
+
+/* --- Mensaje de Error --- */
+.error {
+    color: #c0392b; /* Color de texto rojo oscuro */
+    font-size: 14px; /* Tamaño de fuente */
+    text-align: center; /* Centrado */
+    background-color: #fcecec; /* Fondo rosa pálido */
+    padding: 12px; /* Relleno */
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: none; /* Sin sombra */
+    border: 1px solid #f5c6cb; /* Borde rosa */
+    margin-bottom: 30px; /* Margen inferior (si el error está antes del form) */
+}
+
+/* --- Diseño Responsivo --- */
+@media (max-width: 1400px) { 
+    body {
+        overflow: auto; /* Permite el scroll vertical (necesario en móvil) */
+        height: auto; /* Altura automática */
+        min-height: 100vh; /* Mínimo 100% de la altura de la ventana */
+        padding-top: 220px; /* Espacio superior para el logo (que ahora está arriba) */
+    }
+
+    /* Ocultamos la tarjeta del logo de Casa GMS (izquierda) */
+    .logo-card {
+        display: none; 
+    }
+
+    /* El contenedor de login ahora se centra */
+    .login-container {
+        position: relative; /* Cambia de absoluto a relativo */
+        left: auto; /* Resetea posición */
+        right: auto; /* Resetea posición */
+        top: auto; /* Resetea posición */
+        transform: none; /* Resetea transformación */
+        
+        width: 90%; /* Ancho fluido */
+        margin: 20px auto; /* Centra horizontalmente y añade margen vertical */
+        
+        max-width: 550px; /* Ancho máximo */
+        margin-bottom: 50px; /* Margen inferior */
+        padding: 30px; /* Relleno */
+    }
+
+    /* Ajusta el título de login */
+    .login-title {
+        font-size: 2.2rem; /* Tamaño de fuente */
+        margin-bottom: 25px; /* Margen inferior */
+        width: 60%; /* Ancho de la línea decorativa */
+    }
+
+    /* Asegura que el logo superior (móvil) esté posicionado */
+    .top-logo {
+        position: absolute; /* Posición absoluta */
+        top: 30px; /* 30px desde arriba */
+        padding-top: 0; /* Sin relleno superior */
+    }
+}

@@ -1,0 +1,65 @@
+/*
+ * Estilos específicos para comedor1.php
+ */
+
+.sala-layout.comedor1 {
+   
+    background-image: url('../img/comedor1.png');
+}
+
+/* * Posicionamiento de las 4 mesas para Comedor 1
+ * (IDs 13, 14, 15, 16 según tu BBDD)
+ */
+
+/* (Mesa C1-1) */
+#mesa-13 {
+    top: 15%;
+    left: 25%;
+}
+
+/* (Mesa C1-2) */
+#mesa-14 {
+    top: 15%;
+    left: 65%;
+}
+
+/* (Mesa C1-3) */
+#mesa-15 {
+    top: 55%;
+    left: 25%;
+}
+
+/* (Mesa C1-4) */
+#mesa-16 {
+    top: 55%;
+    left: 65%;
+}
+
+/* ==============================================
+   RESPONSIVE MÓVIL
+   ============================================== */
+@media (max-width: 899px) {
+    /* (Mesa C1-1) */
+    #mesa-13 {
+        top: 25%; /* +10% (Abajo) */
+        left: 15%; /* -10% (Izquierda) */
+    }
+
+    /* (Mesa C1-2) */
+    #mesa-14 {
+        top: 25%; /* +10% (Abajo) */
+        left: 55%; /* -10% (Izquierda) */
+    }
+
+    /* (Mesa C1-3) */
+    #mesa-15 {
+        top: 65%; /* +10% (Abajo) */
+        left: 15%; /* -10% (Izquierda) */
+    }
+
+    /* (Mesa C1-4) */
+    #mesa-16 {
+        top: 65%; /* +10% (Abajo) */
+        left: 55%; /* -10% (Izquierda) */
+    }
+}

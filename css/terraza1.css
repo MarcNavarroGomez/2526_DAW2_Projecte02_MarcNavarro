@@ -1,0 +1,65 @@
+/*
+ * Estilos específicos para terraza1.php
+ */
+
+.sala-layout.terraza1 {
+    /* 
+     Sube 1 nivel (de css/ a restaurante/) y entra en img/
+    */
+    background-image: url('../img/terraza1.png');
+}
+
+/* Posicionamiento de las 4 mesas para Terraza 1 */
+
+/* (Mesa T1-1) */
+#mesa-1 {
+    top: 10%; 
+    left: 25%;
+}
+
+/* (Mesa T1-2) */
+#mesa-2 {
+    top: 10%; 
+    left: 65%;
+}
+
+/* (Mesa T1-3) */
+#mesa-3 {
+    top: 55%; 
+    left: 25%;
+}
+
+/* (Mesa T1-4) */
+#mesa-4 {
+    top: 55%; 
+    left: 65%;
+}
+
+/* ==============================================
+   RESPONSIVE MÓVIL
+   ============================================== */
+@media (max-width: 899px) {
+    /* (Mesa T1-1) */
+    #mesa-1 {
+        top: 22%; /* +10% (Abajo) */
+        left: 15%; /* -10% (Izquierda) */
+    }
+
+    /* (Mesa T1-2) */
+    #mesa-2 {
+        top: 22%; /* +10% (Abajo) */
+        left: 55%; /* -10% (Izquierda) */
+    }
+
+    /* (Mesa T1-3) */
+    #mesa-3 {
+        top: 57%; /* +10% (Abajo) */
+        left: 15%; /* -10% (Izquierda) */
+    }
+
+    /* (Mesa T1-4) */
+    #mesa-4 {
+        top: 57%; /* +10% (Abajo) */
+        left: 59%; /* -10% (Izquierda) */
+    }
+}

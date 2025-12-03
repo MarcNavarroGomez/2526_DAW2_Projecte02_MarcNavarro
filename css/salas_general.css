@@ -1,0 +1,391 @@
+/* --- Importar Fuente Poppins (Consistencia) --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* ==============================================
+   ESTRUCTURA PRINCIPAL DE SALAS (ESCRITORIO)
+   ============================================== */
+
+/* Contenedor principal que agrupa el layout de la sala y la navegación */
+.sala-container {
+    display: flex; /* Usa Flexbox (layout y navegación uno al lado del otro) */
+    /* Calcula la altura: 100% de la ventana MENOS 110px (altura del header) */
+    height: calc(100vh - 110px); 
+    position: relative; /* Contexto de posicionamiento */
+    font-family: 'Poppins', sans-serif; /* Aplica la fuente Poppins */
+}
+
+/* --- Panel de Navegación de Salas (Derecha) - ESCRITORIO --- */
+.salas-navigation {
+    width: 280px; /* Ancho fijo */
+    background-color: #ce4535; /* Color rojo GMS */
+    padding: 20px; /* Relleno interior */
+    overflow-y: auto; /* Scroll vertical si los enlaces no caben */
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1); /* Sombra a la izquierda */
+    display: flex; /* Usa Flexbox */
+    flex-direction: column; /* Apila los enlaces verticalmente */
+    gap: 10px; /* Espacio entre los enlaces */
+}
+
+/* Enlace individual en la navegación lateral */
+.sala-nav-link {
+    display: block; /* Ocupa todo el ancho */
+    text-decoration: none; /* Quita subrayado */
+    color: white; /* Texto blanco */
+    font-size: 1.1rem; /* Tamaño de fuente */
+    font-weight: 500; /* Fuente medium */
+    padding: 15px 20px; /* Relleno */
+    border-radius: 10px; /* Bordes redondeados */
+    transition: background-color 0.2s ease; /* Animación suave */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Borde sutil */
+}
+
+/* Efecto al pasar el ratón (hover) */
+.sala-nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Fondo blanco semitransparente */
+}
+
+/* Estilo para el enlace de la sala activa (la que se está viendo) */
+.sala-nav-link.active {
+    background-color: white; /* Fondo blanco */
+    color: #ce4535; /* Texto rojo GMS */
+    font-weight: 700; /* Fuente bold */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Sombra */
+}
+
+/* --- Área de Visualización de la Sala (Izquierda/Centro) --- */
+.sala-layout {
+    flex-grow: 1; /* Ocupa todo el espacio restante */
+    position: relative; /* ¡Importante para posicionar las mesas y el botón responsive! */
+    background-size: cover; /* Escala la imagen de fondo */
+    background-position: center; /* Centra la imagen de fondo */
+    background-repeat: no-repeat; /* No repite la imagen */
+    border: 10px solid #d1a785; /* Borde "marco de madera" */
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.3); /* Sombra interior */
+}
+
+/* --- Formulario que envuelve la mesa --- */
+/* (Necesario para que el <form> no rompa el layout del <button> de la mesa) */
+.mesa-form {
+    display: contents; 
+}
+
+/* --- Estilo de las Mesas (BOTÓN) --- */
+.mesa {
+    /* Resetea estilos de botón */
+    border: none;
+    font: inherit;
+    background-color: transparent;
+    box-shadow: none;
+    
+    position: absolute; /* Posicionamiento absoluto (controlado por top/left en CSS específicos) */
+    cursor: pointer; /* Cursor de mano */
+    transition: transform 0.2s ease; /* Animación de escala */
+    padding: 5px; /* Relleno (tamaño móvil) */
+    border-radius: 10px; /* Bordes redondeados */
+    user-select: none; /* Evita que el texto se pueda seleccionar */
+    
+    /* Layout interno de la mesa (imagen, nombre, sillas) */
+    display: flex;
+    flex-direction: column; /* Apila los elementos verticalmente */
+    align-items: center; /* Centra horizontalmente */
+    gap: 3px; /* Espacio entre elementos (tamaño móvil) */
+}
+
+/* Imagen de la mesa */
+.mesa-img {
+    width: 80px; /* Tamaño MÓVIL por defecto */
+    height: auto; /* Mantiene proporción */
+    transition: filter 0.2s ease, width 0.3s ease; /* Animación de filtro y tamaño */
+}
+
+/* Efecto hover para la mesa */
+.mesa:hover {
+    transform: scale(1.05); /* Agranda la mesa ligeramente */
+}
+
+/* Etiqueta con el nombre de la mesa (ej. "Mesa 1") */
+.mesa-label {
+    background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro semitransparente */
+    color: white; /* Texto blanco */
+    font-size: 0.7rem; /* Fuente pequeña */
+    font-weight: 600; /* Fuente semi-bold */
+    padding: 2px 5px; /* Relleno */
+    border-radius: 5px; /* Bordes redondeados */
+    white-space: nowrap; /* Evita que el nombre salte de línea */
+}
+
+/* Etiqueta de sillas (ej. "4 Sillas") */
+.mesa-sillas {
+    font-size: 0.8rem; /* Fuente pequeña */
+    font-weight: 700; /* Fuente bold */
+    color: #333; /* Color oscuro */
+    background-color: rgba(255, 255, 255, 0.8); /* Fondo blanco semitransparente */
+    padding: 2px 6px; /* Relleno */
+    border-radius: 10px; /* Bordes redondeados */
+    order: -1; /* Mueve esta etiqueta *antes* (encima) de la imagen */
+}
+/* Icono de silla */
+.mesa-sillas i {
+    margin-right: 4px; /* Espacio entre icono y texto */
+}
+
+/* Etiqueta del camarero (visible si está ocupada) */
+.mesa-camarero {
+    font-size: 0.7rem; /* Fuente pequeña */
+    font-weight: 600; /* Fuente semi-bold */
+    color: #c23e2f; /* Color rojo */
+    background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco */
+    padding: 1px 4px; /* Relleno */
+    border-radius: 4px; /* Bordes redondeados */
+}
+
+/* Estilos para mesas OCUPADAS */
+
+/* Pone la imagen en blanco y negro y transparente */
+.mesa.ocupada .mesa-img {
+    filter: grayscale(100%) opacity(0.6);
+}
+/* Cambia el color de fondo de la etiqueta de sillas */
+.mesa.ocupada .mesa-sillas {
+    background-color: rgba(255, 204, 204, 0.8); /* Fondo rojizo */
+    color: #a53030; /* Texto rojo oscuro */
+}
+/* Asegura que el fondo del botón <mesa> siga transparente */
+.mesa.ocupada {
+    background-color: transparent;
+}
+
+
+/* ==============================================
+   BOTÓN DESPLEGABLE (MÓVIL)
+   ============================================== */
+
+/* Contenedor del botón (tipo Bootstrap 'dropdown') */
+.sala-layout-dropdown {
+    display: none; /* Oculto en escritorio por defecto */
+    position: absolute; /* Posicionado sobre el .sala-layout */
+    top: 20px;
+    right: 20px;
+    z-index: 1000; /* Por encima de las mesas */
+}
+
+/* Estilo personalizado para el botón (icono de hamburguesa) */
+.sala-layout-dropdown .btn-salas {
+    background-color: #ce4535; /* Fondo rojo */
+    color: white; /* Icono blanco */
+    width: 50px;  /* Pequeño */
+    height: 50px; /* Pequeño */
+    border-radius: 50%; /* Circular */
+    font-size: 1.2rem; /* Tamaño icono */
+    padding: 0; /* Sin relleno */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* Sombra */
+    display: flex; /* Centra el icono */
+    align-items: center; /* Centra verticalmente */
+    justify-content: center; /* Centra horizontalmente */
+    border: 2px solid white; /* Borde blanco */
+}
+
+/* Ajuste del menú desplegable (lista de salas) */
+.sala-layout-dropdown .dropdown-menu {
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+
+/* Estilo del item activo en el desplegable */
+.sala-layout-dropdown .dropdown-item.active {
+    background-color: #ce4535;
+    color: white;
+}
+
+/* ==============================================
+   ESTILOS PARA PÁGINAS DE ACCIÓN (asignar / liberar)
+   ============================================== */
+
+/* Formulario centrado (para asignar/liberar) */
+.interstitial-form {
+    /* Centra la caja en medio del layout */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centrado perfecto */
+
+    /* Estilo de la caja */
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 90%; /* Ancho fluido (móvil) */
+    max-width: 450px; /* Ancho máximo (escritorio) */
+    padding: 30px; /* Relleno */
+    text-align: center; /* Centra el texto */
+    z-index: 500; /* Asegura que esté sobre el fondo (pero debajo del header) */
+}
+
+.interstitial-form h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+}
+.interstitial-form p {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 20px;
+}
+.interstitial-form p strong {
+    color: #333;
+    font-weight: 600;
+}
+
+/* Estilo del formulario (inputs, labels) */
+.form-full-page {
+    display: flex;
+    flex-direction: column; /* Apila verticalmente */
+    gap: 15px; /* Espacio entre elementos */
+}
+.form-full-page label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #666;
+}
+/* Input para número de comensales */
+.form-full-page input[type="number"] {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.1rem;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* Contenedor de botones (Confirmar/Cancelar) */
+.form-actions {
+    display: flex;
+    justify-content: center; /* Centra los botones */
+    gap: 15px; /* Espacio entre botones */
+    margin-top: 10px;
+}
+
+/* Botones genéricos de las páginas de acción (<a> y <button>) */
+.form-actions button,
+.form-actions a {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none; /* Para los <a> (Cancelar) */
+    transition: all 0.2s ease; /* Animación hover */
+}
+
+/* Botón primario (verde) */
+.btn-primary {
+    background-color: #27ae60;
+    color: white;
+}
+.btn-primary:hover {
+    background-color: #219d55;
+}
+/* Botón peligro (rojo) */
+.btn-danger {
+    background-color: #ce4535;
+    color: white;
+}
+.btn-danger:hover {
+    background-color: #b93e2f;
+}
+/* Botón secundario (gris) */
+.btn-secondary {
+    background-color: #bdc3c7;
+    color: #34495e;
+}
+.btn-secondary:hover {
+    background-color: #95a5a6;
+}
+
+/* Estilo para el mensaje de error (ej. "nº comensales no válido") */
+.form-error-message {
+    background-color: #f8d7da; /* Fondo rosa */
+    color: #721c24; /* Texto rojo oscuro */
+    border: 1px solid #f5c6cb; /* Borde rosa */
+    border-radius: 8px;
+    padding: 15px;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+
+/* ==============================================
+   RESPONSIVE (ESCRITORIO GRANDE)
+   ============================================== */
+@media (min-width: 900px) {
+    /* Agrandamos las mesas en escritorio */
+    .mesa-img {
+        width: 160px; /* Tamaño normal de escritorio */
+    }
+    .mesa {
+        gap: 5px; /* Más espacio entre elementos */
+    }
+    .mesa-label {
+        font-size: 0.8rem;
+        padding: 3px 8px;
+    }
+    .mesa-sillas {
+        font-size: 1rem;
+        padding: 2px 8px;
+    }
+    .mesa-camarero {
+        font-size: 0.8rem;
+        padding: 2px 6px;
+    }
+}
+
+
+/* ==============================================
+   RESPONSIVE Y MÓVIL
+   ============================================== */
+/* (Se usa 899px para no solapar con el min-width: 900px) */
+@media (max-width: 899px) {
+
+    /* 1. Ajustamos la altura de la sala */
+    .sala-container {
+        display: block; /* Rompemos el flex (layout y nav uno encima de otro) */
+        height: auto; /* Altura automática */
+    }
+    
+    .sala-layout {
+        width: 100%; /* Ocupa todo el ancho */
+        /* Altura: 100% ventana MENOS alto del header responsive (aprox 180px) */
+        height: calc(100vh - 180px); 
+    }
+
+    /* 2. Ocultamos la barra lateral de escritorio */
+    .salas-navigation {
+        display: none;
+    }
+
+    /* 3. Mostramos el botón flotante */
+    .sala-layout-dropdown {
+        display: block; /* Hacemos visible el botón de navegación móvil */
+    }
+
+    /* 4. Ajustamos el formulario (asignar/liberar) en móvil */
+    .interstitial-form {
+        width: 90%; /* Más ancho en móvil */
+        padding: 20px; /* Menos relleno */
+    }
+    
+    .interstitial-form h2 {
+        font-size: 1.3rem;
+    }
+    
+    .interstitial-form p {
+        font-size: 1rem;
+    }
+
+    /* Apila los botones (Confirmar / Cancelar) verticalmente */
+    .form-actions {
+        flex-direction: column; 
+    }
+}

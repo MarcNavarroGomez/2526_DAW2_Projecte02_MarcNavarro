@@ -1,0 +1,18 @@
+/*
+ * Estilos específicos para privada1.php
+ */
+
+.sala-layout.privada1 {
+    /* Fondo de la sala */
+    background-image: url('../img/privada1.png');
+    background-position: center;
+    background-size: cover;
+}
+
+/* * Posiciona la única mesa (ID 21) en el centro 
+ */
+#mesa-21 {
+    top: 67%;
+    left: 52%;
+    transform: translate(-50%, -50%);
+}

@@ -1,0 +1,73 @@
+/*
+ * Estilos específicos para comedor2.php
+ */
+
+.sala-layout.comedor2 {
+    background-image: url('../img/comedor2.png');
+    
+   
+    background-position: center -145px; 
+}
+
+/* * Posicionamiento de las 4 mesas para Comedor 2
+ * (IDs 17, 18, 19, 20 según tu BBDD)
+ */
+
+/* (Mesa C2-1) */
+#mesa-17 {
+    top: 24%;
+    left: 25%;
+}
+
+/* (Mesa C2-2) */
+#mesa-18 {
+    top: 24%;
+    left: 65%;
+}
+
+/* (Mesa C2-3) */
+#mesa-19 {
+    top: 60%;
+    left: 25%;
+}
+
+/* (Mesa C2-4) */
+#mesa-20 {
+    top: 60%;
+    left: 65%;
+}
+
+/* ==============================================
+   RESPONSIVE MÓVIL
+   ============================================== */
+@media (max-width: 899px) {
+    
+    .sala-layout.comedor2 {
+        /* Reseteamos la posición del fondo para que se vea mejor en vertical */
+        background-position: center top; 
+    }
+
+    /* (Mesa C2-1) */
+    #mesa-17 {
+        top: 39%; /* +10% (Abajo) */
+        left: 15%; /* -10% (Izquierda) */
+    }
+
+    /* (Mesa C2-2) */
+    #mesa-18 {
+        top: 39%; /* +10% (Abajo) */
+        left: 55%; /* -10% (Izquierda) */
+    }
+
+    /* (Mesa C2-3) */
+    #mesa-19 {
+        top: 70%; /* +10% (Abajo) */
+        left: 15%; /* -10% (Izquierda) */
+    }
+
+    /* (Mesa C2-4) */
+    #mesa-20 {
+        top: 70%; /* +10% (Abajo) */
+        left: 55%; /* -10% (Izquierda) */
+    }
+}
