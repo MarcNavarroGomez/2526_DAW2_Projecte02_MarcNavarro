@@ -85,11 +85,12 @@
             $update->execute([$id_camarero, $id_mesa]);
 
             // 2. Inserta un nuevo registro en la tabla 'ocupaciones'
+            // NOTA: id_sala se obtiene de mesas, no se inserta directamente
             $insert = $conn->prepare("
-                INSERT INTO ocupaciones (id_camarero, id_sala, id_mesa, inicio_ocupacion, num_comensales)
-                VALUES (?, ?, ?, NOW(), ?)
+                INSERT INTO ocupaciones (id_camarero, id_mesa, inicio_ocupacion, num_comensales)
+                VALUES (?, ?, NOW(), ?)
             ");
-            $insert->execute([$id_camarero, $mesa['id_sala'], $id_mesa, $num_comensales]);
+            $insert->execute([$id_camarero, $id_mesa, $num_comensales]);
 
             // Si todo va bien, confirma los cambios
             $conn->commit();

@@ -166,7 +166,7 @@ if ($hora >= 6 && $hora < 12) {
                 <i class="fa-solid fa-chart-bar"></i> Histórico
             </a>
             <?php if ($rol == 2): ?>
-                <a href="./admin_panel.php" class="nav-link">
+                <a href="./ADMIN/admin_panel.php" class="nav-link">
                     <i class="fa-solid fa-gear"></i> Admin
                 </a>
             <?php endif; ?>
@@ -236,7 +236,6 @@ if ($hora >= 6 && $hora < 12) {
                         <div class="progress-bar-container">
                             <div 
                                 class="progress-bar" 
-                                /* El ancho y color se definen dinámicamente con PHP */
                                 style="width: <?= $sala['ocupacion_pct'] ?>%; 
                                        background-color: <?= $bar_color ?>;">
                             </div>

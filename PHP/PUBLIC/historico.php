@@ -111,10 +111,12 @@ try {
     
     // --- 4. DATOS GRÁFICO: Top 5 Salas ---
     // Misma lógica que el Top Camareros, pero agrupando por sala.
+    // NOTA: Ahora obtenemos id_sala a través de mesas
     $sql_top_salas = "SELECT s.nombre, COUNT(o.id) AS total_ocupaciones
         FROM ocupaciones o
-        JOIN salas s ON o.id_sala = s.id /* Une con 'salas' para obtener el nombre */
-        GROUP BY o.id_sala
+        JOIN mesas m ON o.id_mesa = m.id
+        JOIN salas s ON m.id_sala = s.id
+        GROUP BY s.id
         ORDER BY total_ocupaciones DESC
         LIMIT 5";
     $top_salas = $conn->query($sql_top_salas)->fetchAll(PDO::FETCH_ASSOC);
@@ -178,11 +180,12 @@ try {
     
     // --- CONSTRUCCIÓN DE LA CONSULTA DINÁMICA PARA LA TABLA ---
     // Esta es la consulta base. Obtiene todos los datos y los nombres de las tablas relacionadas.
+    // NOTA: Ahora obtenemos sala a través de mesas
     $sql_tabla = "
         SELECT o.*, s.nombre AS sala_nombre, m.nombre AS mesa_nombre, u.username AS camarero
         FROM ocupaciones o
-        JOIN salas s ON o.id_sala = s.id
         JOIN mesas m ON o.id_mesa = m.id
+        JOIN salas s ON m.id_sala = s.id
         JOIN users u ON o.id_camarero = u.id
         WHERE 1=1"; // "WHERE 1=1" es un truco: permite añadir siempre "AND" sin preocuparse de si es el primer filtro.
     
@@ -192,7 +195,7 @@ try {
     // --- Añadir filtros dinámicamente ---
     // Comprueba si la variable de filtro (de la URL) NO está vacía.
     if ($filtro_sala !== '') {
-        $sql_tabla .= " AND o.id_sala = :sala"; // Añade la condición SQL (con un marcador :sala).
+        $sql_tabla .= " AND m.id_sala = :sala"; // Filtra por sala a través de mesas
         $params_tabla[':sala'] = $filtro_sala; // Añade el valor al array de parámetros.
     }
     // Repite la lógica para los demás filtros.

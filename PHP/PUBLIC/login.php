@@ -19,7 +19,7 @@ $db_error = null; // Variable para guardar errores de BBDD
 
 try {
     // 3. Obtener solo los camareros (rol=1) y que no estén dados de baja
-    $stmt = $conn->query("SELECT id, username, nombre, apellido FROM users WHERE rol = 1 AND fecha_baja IS NULL ORDER BY nombre");
+    $stmt = $conn->query("SELECT id, username, nombre, apellido FROM users WHERE fecha_baja IS NULL ORDER BY nombre");
     $camareros = $stmt->fetchAll(PDO::FETCH_ASSOC); // Obtiene los resultados
     
 } catch (PDOException $e) {
