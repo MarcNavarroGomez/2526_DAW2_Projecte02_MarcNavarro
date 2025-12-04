@@ -78,7 +78,7 @@ try {
     <div class="container">
         <h1 class="page-title">Gestión de Salas</h1>
 
-        <button class="btn btn-primary" onclick="mostrarModalCrear()">
+        <button class="btn btn-primary" id="btn-nueva-sala">
             <i class="fa-solid fa-plus"></i> Nueva Sala
         </button>
 
@@ -109,12 +109,13 @@ try {
                                 <td><?= htmlspecialchars($sala['nombre']) ?></td>
                                 <td><?= $sala['mesas_reales'] ?></td>
                                 <td>
-                                    <button class="btn btn-sm btn-warning" 
-                                            onclick="cambiarImagen(<?= $sala['id'] ?>)">
+                                    <button class="btn btn-sm btn-warning btn-cambiar-imagen" 
+                                            data-id="<?= $sala['id'] ?>">
                                         <i class="fa-solid fa-image"></i> Imagen
                                     </button>
-                                    <button class="btn btn-sm btn-danger" 
-                                            onclick="eliminarSala(<?= $sala['id'] ?>, '<?= htmlspecialchars($sala['nombre']) ?>')">
+                                    <button class="btn btn-sm btn-danger btn-eliminar-sala" 
+                                            data-id="<?= $sala['id'] ?>" 
+                                            data-nombre="<?= htmlspecialchars($sala['nombre']) ?>">
                                         <i class="fa-solid fa-trash"></i> Eliminar
                                     </button>
                                 </td>
@@ -129,7 +130,7 @@ try {
     <!-- Modal para crear sala -->
     <div id="modalCrear" class="modal" style="display: none;">
         <div class="modal-content">
-            <span class="close" onclick="cerrarModal('modalCrear')">&times;</span>
+            <span class="close" data-modal="modalCrear">&times;</span>
             <h2>Nueva Sala</h2>
             <form method="POST" action="../../PROCEDIMIENTOS/ADMIN/crear_sala.php">
                 <div class="form-group">
@@ -148,7 +149,7 @@ try {
     <!-- Modal para cambiar imagen -->
     <div id="modalImagen" class="modal" style="display: none;">
         <div class="modal-content">
-            <span class="close" onclick="cerrarModal('modalImagen')">&times;</span>
+            <span class="close" data-modal="modalImagen">&times;</span>
             <h2>Cambiar Imagen de Sala</h2>
             <form method="POST" action="../../PROCEDIMIENTOS/ADMIN/subir_imagen_sala.php" enctype="multipart/form-data">
                 <input type="hidden" name="id_sala" id="imagen_id_sala">
@@ -163,76 +164,6 @@ try {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        function mostrarModalCrear() {
-            document.getElementById('modalCrear').style.display = 'flex';
-        }
-
-        function cerrarModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        function cambiarImagen(idSala) {
-            document.getElementById('imagen_id_sala').value = idSala;
-            document.getElementById('modalImagen').style.display = 'flex';
-        }
-
-        function eliminarSala(id, nombre) {
-            Swal.fire({
-                title: '¿Eliminar sala?',
-                text: `Se eliminará la sala "${nombre}" y todas sus mesas`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#e74c3c',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '../../PROCEDIMIENTOS/ADMIN/eliminar_sala.php';
-                    
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'id_sala';
-                    input.value = id;
-                    
-                    form.appendChild(input);
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
-        }
-
-        // Mostrar mensajes
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('success')) {
-            const msg = urlParams.get('success');
-            let texto = 'Operación realizada correctamente';
-            if (msg === 'sala_creada') texto = 'Sala creada correctamente';
-            if (msg === 'sala_eliminada') texto = 'Sala eliminada correctamente';
-            if (msg === 'imagen_subida') texto = 'Imagen subida correctamente';
-            
-            Swal.fire({
-                icon: 'success',
-                title: '¡Éxito!',
-                text: texto,
-                timer: 2000,
-                showConfirmButton: false
-            });
-        }
-        if (urlParams.has('error')) {
-            const error = urlParams.get('error');
-            let texto = 'Ha ocurrido un error';
-            if (error === 'tipo_invalido') texto = 'Tipo de archivo no permitido';
-            if (error === 'archivo_grande') texto = 'El archivo es demasiado grande (máx. 5MB)';
-            
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: texto
-            });
-        }
-    </script>
+    <script src="../../../JS/admin_salas.js"></script>
 </body>
 </html>

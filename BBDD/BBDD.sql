@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS mesas (
     sillas INT NOT NULL,
     estado INT DEFAULT 1,  -- 1=libre, 2=ocupada, 3=reservada
     asignado_por INT NULL,  -- ID del camarero que asignó la mesa (sin FK)
-    FOREIGN KEY (id_sala) REFERENCES salas(id) ON DELETE CASCADE
+    FOREIGN KEY (id_sala) REFERENCES salas(id)
 );
 
 -- ==========================================

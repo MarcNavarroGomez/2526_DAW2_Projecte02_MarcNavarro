@@ -20,6 +20,17 @@ try {
     ";
     $stmt = $conn->query($sql);
     $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Obtener usuarios inactivos (baja lógica)
+    $sql_inactivos = "
+        SELECT 
+            id, username, nombre, apellido, email, rol, fecha_baja
+        FROM users
+        WHERE fecha_baja IS NOT NULL
+        ORDER BY fecha_baja DESC
+    ";
+    $stmt_inactivos = $conn->query($sql_inactivos);
+    $usuarios_inactivos = $stmt_inactivos->fetchAll(PDO::FETCH_ASSOC);
     
 } catch (PDOException $e) {
     die("Error: " . $e->getMessage());
@@ -82,8 +93,11 @@ function getNombreRol($rol) {
     <div class="container">
         <h1 class="page-title">Gestión de Usuarios</h1>
 
-        <button class="btn btn-primary" onclick="mostrarModalCrear()">
+        <button class="btn btn-primary" id="btn-nuevo-usuario">
             <i class="fa-solid fa-plus"></i> Nuevo Usuario
+        </button>
+        <button class="btn btn-primary" id="btn-ver-inactivos" style="margin-left: 10px;">
+            <i class="fa-solid fa-user-slash"></i> Usuarios Inactivos
         </button>
 
         <div class="card">
@@ -110,13 +124,19 @@ function getNombreRol($rol) {
                                 <td><?= getNombreRol($user['rol']) ?></td>
                                 <td><?= date('d/m/Y', strtotime($user['fecha_alta'])) ?></td>
                                 <td>
-                                    <button class="btn btn-sm btn-info" 
-                                            onclick='editarUsuario(<?= json_encode($user) ?>)'>
+                                    <button class="btn btn-sm btn-info btn-editar-usuario" 
+                                            data-id="<?= $user['id'] ?>"
+                                            data-username="<?= htmlspecialchars($user['username']) ?>"
+                                            data-nombre="<?= htmlspecialchars($user['nombre']) ?>"
+                                            data-apellido="<?= htmlspecialchars($user['apellido']) ?>"
+                                            data-email="<?= htmlspecialchars($user['email']) ?>"
+                                            data-rol="<?= $user['rol'] ?>">
                                         <i class="fa-solid fa-edit"></i>
                                     </button>
                                     <?php if ($user['id'] != $_SESSION['id_usuario']): ?>
-                                        <button class="btn btn-sm btn-danger" 
-                                                onclick="eliminarUsuario(<?= $user['id'] ?>, '<?= htmlspecialchars($user['username']) ?>')">
+                                        <button class="btn btn-sm btn-danger btn-eliminar-usuario" 
+                                                data-id="<?= $user['id'] ?>" 
+                                                data-username="<?= htmlspecialchars($user['username']) ?>">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     <?php endif; ?>
@@ -132,7 +152,7 @@ function getNombreRol($rol) {
     <!-- Modal para crear usuario -->
     <div id="modalCrear" class="modal" style="display: none;">
         <div class="modal-content">
-            <span class="close" onclick="cerrarModal('modalCrear')">&times;</span>
+            <span class="close" data-modal="modalCrear">&times;</span>
             <h2>Nuevo Usuario</h2>
             <form method="POST" action="../../PROCEDIMIENTOS/ADMIN/crear_usuario.php">
                 <div class="form-group">
@@ -171,7 +191,7 @@ function getNombreRol($rol) {
     <!-- Modal para editar usuario -->
     <div id="modalEditar" class="modal" style="display: none;">
         <div class="modal-content">
-            <span class="close" onclick="cerrarModal('modalEditar')">&times;</span>
+            <span class="close" data-modal="modalEditar">&times;</span>
             <h2>Editar Usuario</h2>
             <form method="POST" action="../../PROCEDIMIENTOS/ADMIN/editar_usuario.php">
                 <input type="hidden" name="id_usuario" id="edit_id">
@@ -204,77 +224,53 @@ function getNombreRol($rol) {
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        function mostrarModalCrear() {
-            document.getElementById('modalCrear').style.display = 'flex';
-        }
-
-        function cerrarModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        function editarUsuario(user) {
-            document.getElementById('edit_id').value = user.id;
-            document.getElementById('edit_username').value = user.username;
-            document.getElementById('edit_nombre').value = user.nombre;
-            document.getElementById('edit_apellido').value = user.apellido || '';
-            document.getElementById('edit_email').value = user.email || '';
-            document.getElementById('edit_rol').value = user.rol;
-            document.getElementById('modalEditar').style.display = 'flex';
-        }
-
-        function eliminarUsuario(id, username) {
-            Swal.fire({
-                title: '¿Eliminar usuario?',
-                text: `Se eliminará el usuario "${username}"`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#e74c3c',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '../../PROCEDIMIENTOS/ADMIN/eliminar_usuario.php';
-                    
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'id_usuario';
-                    input.value = id;
-                    
-                    form.appendChild(input);
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
-        }
-
-        // Mostrar mensajes
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('success')) {
-            const msg = urlParams.get('success');
-            let texto = 'Operación realizada correctamente';
-            if (msg === 'usuario_creado') texto = 'Usuario creado correctamente';
-            if (msg === 'usuario_editado') texto = 'Usuario editado correctamente';
-            if (msg === 'usuario_eliminado') texto = 'Usuario eliminado correctamente';
+    <!-- Modal para usuarios inactivos -->
+    <div id="modalInactivos" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close" data-modal="modalInactivos">&times;</span>
+            <h2>Usuarios Inactivos</h2>
             
-            Swal.fire({
-                icon: 'success',
-                title: '¡Éxito!',
-                text: texto,
-                timer: 2000,
-                showConfirmButton: false
-            });
-        }
-        if (urlParams.has('error')) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: urlParams.get('error')
-            });
-        }
-    </script>
+            <?php if (empty($usuarios_inactivos)): ?>
+                <p class="text-center">No hay usuarios inactivos.</p>
+            <?php else: ?>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Nombre</th>
+                            <th>Fecha Baja</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($usuarios_inactivos as $user): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($user['username']) ?></td>
+                                <td><?= htmlspecialchars($user['nombre'] . ' ' . $user['apellido']) ?></td>
+                                <td><?= date('d/m/Y H:i', strtotime($user['fecha_baja'])) ?></td>
+                                <td>
+                                    <button class="btn btn-sm btn-success btn-rehabilitar-usuario" 
+                                            data-id="<?= $user['id'] ?>" 
+                                            data-username="<?= htmlspecialchars($user['username']) ?>"
+                                            title="Rehabilitar">
+                                        <i class="fa-solid fa-trash-restore"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger btn-borrar-permanente" 
+                                            data-id="<?= $user['id'] ?>" 
+                                            data-username="<?= htmlspecialchars($user['username']) ?>"
+                                            title="Eliminar permanentemente">
+                                        <i class="fa-solid fa-ban"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../../JS/admin_usuarios.js"></script>
 </body>
 </html>
