@@ -140,65 +140,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buscar_mesas'])) {
     <title>Reservas - Casa GMS</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/admin.css"> <!-- Reutilizamos estilos -->
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="../../css/reservas.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <style>
-        .reservas-container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 20px;
-        }
-        .search-box {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-        .mesas-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-        }
-        .mesa-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            transition: transform 0.3s ease;
-            border: 1px solid #eee;
-            cursor: pointer;
-        }
-        .mesa-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-color: #3498db;
-        }
-        .mesa-icon {
-            font-size: 2.5rem;
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-        .mesa-info h3 { margin: 0 0 10px 0; color: #34495e; }
-        .mesa-info p { margin: 5px 0; color: #7f8c8d; }
-        .tag-sala {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            margin-top: 10px;
-        }
-        .tag-privada { background: #e8f6f3; color: #1abc9c; }
-        .tag-normal { background: #f4f6f7; color: #7f8c8d; }
-        
-        /* Modal Styles */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
-        .modal-content { background-color: #fff; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; position: relative; animation: slideDown 0.3s ease; }
-        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    </style>
 </head>
-<body>
+<body 
+    data-success="<?= htmlspecialchars($success) ?>" 
+    data-error="<?= htmlspecialchars($error) ?>">
     <nav class="main-header">
         <div class="header-logo">
             <img src="../img/basic_logo_blanco.png" alt="Logo GMS">
@@ -334,52 +282,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buscar_mesas'])) {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        // DOM Clásico
-        var modal = document.getElementById('modalReserva');
-        var closeBtn = document.getElementById('closeModal');
-
-        if (closeBtn) {
-            closeBtn.onclick = function() {
-                modal.style.display = 'none';
-            }
-        }
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-
-        function abrirModalReserva(elemento) {
-            var id = elemento.getAttribute('data-id');
-            var nombre = elemento.getAttribute('data-nombre');
-            var sala = elemento.getAttribute('data-sala');
-            var inicio = elemento.getAttribute('data-inicio');
-            var fin = elemento.getAttribute('data-fin');
-
-            // Formatear hora para mostrar
-            var horaInicio = inicio.split(' ')[1].substring(0, 5);
-            var horaFin = fin.split(' ')[1].substring(0, 5);
-
-            document.getElementById('res_mesa').innerText = nombre;
-            document.getElementById('res_sala').innerText = sala;
-            document.getElementById('res_horario').innerText = horaInicio + ' - ' + horaFin;
-
-            document.getElementById('input_mesa_id').value = id;
-            document.getElementById('input_fecha_inicio').value = inicio;
-            document.getElementById('input_fecha_fin').value = fin;
-
-            modal.style.display = 'flex';
-        }
-
-        // Mensajes PHP
-        <?php if ($success): ?>
-            Swal.fire('¡Reserva Creada!', '<?= $success ?>', 'success');
-        <?php endif; ?>
-        <?php if ($error): ?>
-            Swal.fire('Error', '<?= $error ?>', 'error');
-        <?php endif; ?>
-    </script>
+    <script src="../../JS/reservas.js"></script>
 </body>
 </html>

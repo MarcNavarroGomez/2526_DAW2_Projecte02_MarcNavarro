@@ -1,15 +1,15 @@
 /**
- * GESTIÓN DE SALAS - DOM CLÁSICO
+ * GESTIÓN DE MESAS - DOM CLÁSICO
  * Manejo de modales y confirmaciones
  */
 
 window.onload = function () {
-    // --- Modal Crear Sala ---
-    var btnNuevaSala = document.getElementById('btn-nueva-sala');
+    // --- Modal Crear Mesa ---
+    var btnNuevaMesa = document.getElementById('btn-nueva-mesa');
     var modalCrear = document.getElementById('modalCrear');
 
-    if (btnNuevaSala) {
-        btnNuevaSala.onclick = function () {
+    if (btnNuevaMesa) {
+        btnNuevaMesa.onclick = function () {
             modalCrear.style.display = 'flex';
         };
     }
@@ -26,26 +26,34 @@ window.onload = function () {
         };
     }
 
-    // --- Cambiar Imagen ---
-    var btnsCambiarImagen = document.getElementsByClassName('btn-cambiar-imagen');
-    for (var i = 0; i < btnsCambiarImagen.length; i++) {
-        btnsCambiarImagen[i].onclick = function () {
+    // --- Editar Mesa ---
+    var btnsEditar = document.getElementsByClassName('btn-editar-mesa');
+    for (var i = 0; i < btnsEditar.length; i++) {
+        btnsEditar[i].onclick = function () {
             var id = this.getAttribute('data-id');
-            document.getElementById('imagen_id_sala').value = id;
-            document.getElementById('modalImagen').style.display = 'flex';
+            var nombre = this.getAttribute('data-nombre');
+            var sala = this.getAttribute('data-sala');
+            var sillas = this.getAttribute('data-sillas');
+
+            document.getElementById('edit_id').value = id;
+            document.getElementById('edit_nombre').value = nombre;
+            document.getElementById('edit_sala').value = sala;
+            document.getElementById('edit_sillas').value = sillas;
+
+            document.getElementById('modalEditar').style.display = 'flex';
         };
     }
 
-    // --- Eliminar Sala ---
-    var btnsEliminar = document.getElementsByClassName('btn-eliminar-sala');
+    // --- Eliminar Mesa ---
+    var btnsEliminar = document.getElementsByClassName('btn-eliminar-mesa');
     for (var i = 0; i < btnsEliminar.length; i++) {
         btnsEliminar[i].onclick = function () {
             var id = this.getAttribute('data-id');
             var nombre = this.getAttribute('data-nombre');
 
             Swal.fire({
-                title: '¿Eliminar sala?',
-                text: 'Se eliminará la sala "' + nombre + '"',
+                title: '¿Eliminar mesa?',
+                text: 'Se eliminará la mesa "' + nombre + '"',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#e74c3c',
@@ -55,11 +63,11 @@ window.onload = function () {
                 if (result.isConfirmed) {
                     var form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = '../../PROCEDIMIENTOS/ADMIN/eliminar_sala.php';
+                    form.action = '../../PROCEDIMIENTOS/ADMIN/eliminar_mesa.php';
 
                     var input = document.createElement('input');
                     input.type = 'hidden';
-                    input.name = 'id_sala';
+                    input.name = 'id_mesa';
                     input.value = id;
 
                     form.appendChild(input);
@@ -75,9 +83,9 @@ window.onload = function () {
     if (urlParams.has('success')) {
         var msg = urlParams.get('success');
         var texto = 'Operación realizada correctamente';
-        if (msg === 'sala_creada') texto = 'Sala creada correctamente';
-        if (msg === 'sala_eliminada') texto = 'Sala eliminada correctamente';
-        if (msg === 'imagen_subida') texto = 'Imagen subida correctamente';
+        if (msg === 'mesa_creada') texto = 'Mesa creada correctamente';
+        if (msg === 'mesa_editada') texto = 'Mesa editada correctamente';
+        if (msg === 'mesa_eliminada') texto = 'Mesa eliminada correctamente';
 
         Swal.fire({
             icon: 'success',
@@ -88,16 +96,10 @@ window.onload = function () {
         });
     }
     if (urlParams.has('error')) {
-        var error = urlParams.get('error');
-        var texto = 'Ha ocurrido un error';
-        if (error === 'formato_invalido') texto = 'Formato de imagen no válido. Use JPG, PNG o GIF';
-        if (error === 'archivo_muy_grande') texto = 'El archivo es demasiado grande. Máximo 5MB';
-        else texto = error;
-
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: texto
+            text: urlParams.get('error')
         });
     }
 };
