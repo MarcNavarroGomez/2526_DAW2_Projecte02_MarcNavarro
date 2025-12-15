@@ -93,7 +93,7 @@ try { // Inicia un bloque try-catch para manejar errores de BBDD (PDO)
         $ocupacion_salas[] = [
             'sala' => $s['sala_nombre'],
             // Genera el nombre del archivo PHP (ej: "Comedor 1" -> "comedor1.php")
-            'file' => strtolower(str_replace(' ', '', $s['sala_nombre'])) . '.php',
+            'id_sala' => $s['id_sala'],
             'ocupacion_pct' => $ocupacion_pct,
             'mesas_ocupadas' => $s['mesas_ocupadas'],
             'total_mesas' => $s['total_mesas']
@@ -222,7 +222,7 @@ if ($hora >= 6 && $hora < 12) {
                         $bar_color = '#f39c12'; // Color barra (media)
                     }
                 ?>
-                <a href="./SALAS/<?= htmlspecialchars($sala['file']) ?>" class="sala-card-link">
+                <a href="./sala.php?id=<?= $sala['id_sala'] ?>" class="sala-card-link">
                     <div class="sala-card <?= $color_class ?>">
                         <h3 class="sala-name"><?= htmlspecialchars($sala['sala']) ?></h3>
                         <div class="sala-occupancy">

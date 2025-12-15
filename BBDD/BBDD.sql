@@ -5,9 +5,9 @@
 --   VERSIÓN OPTIMIZADA - Relaciones lógicas correctas
 -- ==========================================
 
-DROP DATABASE IF EXISTS restaurante_db;
-CREATE DATABASE restaurante_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE restaurante_db;
+DROP DATABASE IF EXISTS restaurante_db_v2;
+CREATE DATABASE restaurante_db_v2 CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE restaurante_db_v2;
 
 -- ==========================================
 --   TABLA: users
@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS salas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
-    num_mesas INT DEFAULT 0
+    num_mesas INT DEFAULT 0,
+    imagen VARCHAR(255)
 );
 
 -- ==========================================

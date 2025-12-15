@@ -132,7 +132,7 @@ try {
         <div class="modal-content">
             <span class="close" data-modal="modalCrear">&times;</span>
             <h2>Nueva Sala</h2>
-            <form method="POST" action="../../PROCEDIMIENTOS/ADMIN/crear_sala.php">
+            <form method="POST" action="../../PROCEDIMIENTOS/ADMIN/crear_sala.php" enctype="multipart/form-data">
                 <div class="form-group">
                     <label>Nombre de la Sala *</label>
                     <input type="text" name="nombre" class="form-control" required>
@@ -140,6 +140,11 @@ try {
                 <div class="form-group">
                     <label>Número de Mesas</label>
                     <input type="number" name="num_mesas" class="form-control" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Imagen de la Sala (Opcional)</label>
+                    <input type="file" name="imagen" class="form-control" accept="image/*">
+                    <small class="text-muted">Formatos permitidos: JPG, PNG, GIF. Máximo 5MB</small>
                 </div>
                 <button type="submit" class="btn btn-primary">Crear</button>
             </form>

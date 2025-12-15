@@ -111,22 +111,25 @@ try {
                     $clase = $mesa['estado'] == 2 ? 'ocupada' : 'libre';
                     $accion = $mesa['estado'] == 1 ? './../../PROCEDIMIENTOS/asignar_mesa.php' : './../../PROCEDIMIENTOS/liberar_mesa.php';
                 ?>
-                <form action="<?php echo $accion; ?>" method="POST" class="mesa-form">
-                    <input type="hidden" name="mesa_id" value="<?php echo $mesa['id']; ?>">
-                    <button type="submit" class="mesa <?php echo $clase; ?>" id="mesa-<?php echo $mesa['id']; ?>">
-                        
-                        <img src="../../../img/mesa2.png" alt="Mesa" class="mesa-img">
-                        
-                        <span class="mesa-label"><?php echo htmlspecialchars($mesa['nombre']); ?></span>
-                        <div class="mesa-sillas"><i class="fa-solid fa-chair"></i> <?php echo $mesa['sillas']; ?></div>
-                        
-                        <?php if ($mesa['estado'] == 2): ?>
-                            <div class="mesa-camarero">
-                                Asig: <?php echo htmlspecialchars($mesa['camarero'] ?? 'N/A'); ?>
-                            </div>
-                        <?php endif; ?>
-                    </button>
-                </form>
+                <?php
+                    // Enlace a las páginas públicas de formulario (Frontend)
+                    $url_destino = $mesa['estado'] == 1 
+                        ? '../asignar_mesa.php?id_mesa=' . $mesa['id'] 
+                        : '../liberar_mesa.php?id_mesa=' . $mesa['id'];
+                ?>
+                <a href="<?php echo $url_destino; ?>" class="mesa <?php echo $clase; ?>" id="mesa-<?php echo $mesa['id']; ?>" style="text-decoration: none; display: block; cursor: pointer;">
+                    
+                    <img src="../../../img/mesa2.png" alt="Mesa" class="mesa-img">
+                    
+                    <span class="mesa-label"><?php echo htmlspecialchars($mesa['nombre']); ?></span>
+                    <div class="mesa-sillas"><i class="fa-solid fa-chair"></i> <?php echo $mesa['sillas']; ?></div>
+                    
+                    <?php if ($mesa['estado'] == 2): ?>
+                        <div class="mesa-camarero">
+                            Asig: <?php echo htmlspecialchars($mesa['camarero'] ?? 'N/A'); ?>
+                        </div>
+                    <?php endif; ?>
+                </a>
             <?php endforeach; ?>
         </main>
 

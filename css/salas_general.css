@@ -1,391 +1,428 @@
-/* --- Importar Fuente Poppins (Consistencia) --- */
+/* ==============================================
+   ESTILOS GENERALES Y ESTRUCTURA
+   ============================================== */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
-/* ==============================================
-   ESTRUCTURA PRINCIPAL DE SALAS (ESCRITORIO)
-   ============================================== */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f6f9;
+    margin: 0;
+    overflow: hidden;
+    /* Evita scroll en el body principal */
+}
 
-/* Contenedor principal que agrupa el layout de la sala y la navegación */
+/* Contenedor principal que divide la pantalla */
 .sala-container {
-    display: flex; /* Usa Flexbox (layout y navegación uno al lado del otro) */
-    /* Calcula la altura: 100% de la ventana MENOS 110px (altura del header) */
-    height: calc(100vh - 110px); 
-    position: relative; /* Contexto de posicionamiento */
-    font-family: 'Poppins', sans-serif; /* Aplica la fuente Poppins */
-}
-
-/* --- Panel de Navegación de Salas (Derecha) - ESCRITORIO --- */
-.salas-navigation {
-    width: 280px; /* Ancho fijo */
-    background-color: #ce4535; /* Color rojo GMS */
-    padding: 20px; /* Relleno interior */
-    overflow-y: auto; /* Scroll vertical si los enlaces no caben */
-    box-shadow: -5px 0 15px rgba(0,0,0,0.1); /* Sombra a la izquierda */
-    display: flex; /* Usa Flexbox */
-    flex-direction: column; /* Apila los enlaces verticalmente */
-    gap: 10px; /* Espacio entre los enlaces */
-}
-
-/* Enlace individual en la navegación lateral */
-.sala-nav-link {
-    display: block; /* Ocupa todo el ancho */
-    text-decoration: none; /* Quita subrayado */
-    color: white; /* Texto blanco */
-    font-size: 1.1rem; /* Tamaño de fuente */
-    font-weight: 500; /* Fuente medium */
-    padding: 15px 20px; /* Relleno */
-    border-radius: 10px; /* Bordes redondeados */
-    transition: background-color 0.2s ease; /* Animación suave */
-    border: 1px solid rgba(255, 255, 255, 0.2); /* Borde sutil */
-}
-
-/* Efecto al pasar el ratón (hover) */
-.sala-nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.1); /* Fondo blanco semitransparente */
-}
-
-/* Estilo para el enlace de la sala activa (la que se está viendo) */
-.sala-nav-link.active {
-    background-color: white; /* Fondo blanco */
-    color: #ce4535; /* Texto rojo GMS */
-    font-weight: 700; /* Fuente bold */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Sombra */
-}
-
-/* --- Área de Visualización de la Sala (Izquierda/Centro) --- */
-.sala-layout {
-    flex-grow: 1; /* Ocupa todo el espacio restante */
-    position: relative; /* ¡Importante para posicionar las mesas y el botón responsive! */
-    background-size: cover; /* Escala la imagen de fondo */
-    background-position: center; /* Centra la imagen de fondo */
-    background-repeat: no-repeat; /* No repite la imagen */
-    border: 10px solid #d1a785; /* Borde "marco de madera" */
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.3); /* Sombra interior */
-}
-
-/* --- Formulario que envuelve la mesa --- */
-/* (Necesario para que el <form> no rompa el layout del <button> de la mesa) */
-.mesa-form {
-    display: contents; 
-}
-
-/* --- Estilo de las Mesas (BOTÓN) --- */
-.mesa {
-    /* Resetea estilos de botón */
-    border: none;
-    font: inherit;
-    background-color: transparent;
-    box-shadow: none;
-    
-    position: absolute; /* Posicionamiento absoluto (controlado por top/left en CSS específicos) */
-    cursor: pointer; /* Cursor de mano */
-    transition: transform 0.2s ease; /* Animación de escala */
-    padding: 5px; /* Relleno (tamaño móvil) */
-    border-radius: 10px; /* Bordes redondeados */
-    user-select: none; /* Evita que el texto se pueda seleccionar */
-    
-    /* Layout interno de la mesa (imagen, nombre, sillas) */
     display: flex;
-    flex-direction: column; /* Apila los elementos verticalmente */
-    align-items: center; /* Centra horizontalmente */
-    gap: 3px; /* Espacio entre elementos (tamaño móvil) */
-}
-
-/* Imagen de la mesa */
-.mesa-img {
-    width: 80px; /* Tamaño MÓVIL por defecto */
-    height: auto; /* Mantiene proporción */
-    transition: filter 0.2s ease, width 0.3s ease; /* Animación de filtro y tamaño */
-}
-
-/* Efecto hover para la mesa */
-.mesa:hover {
-    transform: scale(1.05); /* Agranda la mesa ligeramente */
-}
-
-/* Etiqueta con el nombre de la mesa (ej. "Mesa 1") */
-.mesa-label {
-    background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro semitransparente */
-    color: white; /* Texto blanco */
-    font-size: 0.7rem; /* Fuente pequeña */
-    font-weight: 600; /* Fuente semi-bold */
-    padding: 2px 5px; /* Relleno */
-    border-radius: 5px; /* Bordes redondeados */
-    white-space: nowrap; /* Evita que el nombre salte de línea */
-}
-
-/* Etiqueta de sillas (ej. "4 Sillas") */
-.mesa-sillas {
-    font-size: 0.8rem; /* Fuente pequeña */
-    font-weight: 700; /* Fuente bold */
-    color: #333; /* Color oscuro */
-    background-color: rgba(255, 255, 255, 0.8); /* Fondo blanco semitransparente */
-    padding: 2px 6px; /* Relleno */
-    border-radius: 10px; /* Bordes redondeados */
-    order: -1; /* Mueve esta etiqueta *antes* (encima) de la imagen */
-}
-/* Icono de silla */
-.mesa-sillas i {
-    margin-right: 4px; /* Espacio entre icono y texto */
-}
-
-/* Etiqueta del camarero (visible si está ocupada) */
-.mesa-camarero {
-    font-size: 0.7rem; /* Fuente pequeña */
-    font-weight: 600; /* Fuente semi-bold */
-    color: #c23e2f; /* Color rojo */
-    background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco */
-    padding: 1px 4px; /* Relleno */
-    border-radius: 4px; /* Bordes redondeados */
-}
-
-/* Estilos para mesas OCUPADAS */
-
-/* Pone la imagen en blanco y negro y transparente */
-.mesa.ocupada .mesa-img {
-    filter: grayscale(100%) opacity(0.6);
-}
-/* Cambia el color de fondo de la etiqueta de sillas */
-.mesa.ocupada .mesa-sillas {
-    background-color: rgba(255, 204, 204, 0.8); /* Fondo rojizo */
-    color: #a53030; /* Texto rojo oscuro */
-}
-/* Asegura que el fondo del botón <mesa> siga transparente */
-.mesa.ocupada {
-    background-color: transparent;
-}
-
-
-/* ==============================================
-   BOTÓN DESPLEGABLE (MÓVIL)
-   ============================================== */
-
-/* Contenedor del botón (tipo Bootstrap 'dropdown') */
-.sala-layout-dropdown {
-    display: none; /* Oculto en escritorio por defecto */
-    position: absolute; /* Posicionado sobre el .sala-layout */
-    top: 20px;
-    right: 20px;
-    z-index: 1000; /* Por encima de las mesas */
-}
-
-/* Estilo personalizado para el botón (icono de hamburguesa) */
-.sala-layout-dropdown .btn-salas {
-    background-color: #ce4535; /* Fondo rojo */
-    color: white; /* Icono blanco */
-    width: 50px;  /* Pequeño */
-    height: 50px; /* Pequeño */
-    border-radius: 50%; /* Circular */
-    font-size: 1.2rem; /* Tamaño icono */
-    padding: 0; /* Sin relleno */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* Sombra */
-    display: flex; /* Centra el icono */
-    align-items: center; /* Centra verticalmente */
-    justify-content: center; /* Centra horizontalmente */
-    border: 2px solid white; /* Borde blanco */
-}
-
-/* Ajuste del menú desplegable (lista de salas) */
-.sala-layout-dropdown .dropdown-menu {
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-}
-
-/* Estilo del item activo en el desplegable */
-.sala-layout-dropdown .dropdown-item.active {
-    background-color: #ce4535;
-    color: white;
+    height: calc(100vh - 80px);
+    /* Resta la altura aproximada del header */
+    position: relative;
 }
 
 /* ==============================================
-   ESTILOS PARA PÁGINAS DE ACCIÓN (asignar / liberar)
+   ZONA IZQUIERDA: VISUALIZACIÓN DE SALA
    ============================================== */
+.sala-layout {
+    flex-grow: 1;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    border-right: 5px solid #d1a785;
+    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.3);
 
-/* Formulario centrado (para asignar/liberar) */
-.interstitial-form {
-    /* Centra la caja en medio del layout */
+    /* Flexbox para centrar el contenido (el grid de mesas o el formulario) */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Botón Ver Reservas (Flotante Derecha Arriba) */
+.btn-ver-reservas {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* Centrado perfecto */
-
-    /* Estilo de la caja */
-    background-color: white;
+    top: 30px;
+    right: 30px;
+    background: white;
+    padding: 10px 20px;
     border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    width: 90%; /* Ancho fluido (móvil) */
-    max-width: 450px; /* Ancho máximo (escritorio) */
-    padding: 30px; /* Relleno */
-    text-align: center; /* Centra el texto */
-    z-index: 500; /* Asegura que esté sobre el fondo (pero debajo del header) */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+    color: #2c3e50;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 100;
+    transition: transform 0.2s, color 0.2s;
+}
+
+.btn-ver-reservas:hover {
+    transform: translateY(-2px);
+    color: #ce4535;
+}
+
+/* ==============================================
+   GRID DE MESAS (SOBRE EL FONDO)
+   ============================================== */
+.mesas-grid-overlay {
+    display: grid;
+    /* Grid responsivo: crea tantas columnas como quepan, mínimo 220px por mesa */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+    padding: 40px;
+    /* Padding reducido y uniforme para centrar perfecto */
+    width: 100%;
+    max-width: 1400px;
+    height: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
+
+    /* Centrado total */
+    align-content: center;
+    justify-content: center;
+    justify-items: center;
+    /* Centra cada mesa en su celda */
+}
+
+/* Wrapper para la mesa */
+.mesa-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    /* Asegura que ocupe su celda para centrarse */
+}
+
+/* Botón invisible que envuelve la mesa */
+.mesa-card-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: block;
+    /* No forzamos ancho 100% aquí para que no estire la imagen */
+}
+
+/* ==============================================
+   TARJETA DE MESA (IMAGEN REAL + ETIQUETAS)
+   ============================================== */
+.mesa-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s ease;
+    width: 180px;
+    /* Ancho base para la imagen */
+    height: auto;
+}
+
+.mesa-card:hover {
+    transform: scale(1.05) translateY(-5px);
+    z-index: 10;
+}
+
+/* Imagen Real de la Mesa */
+.mesa-img-real {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.4));
+    /* Sombra realista */
+    transition: filter 0.3s;
+}
+
+/* Etiqueta Superior (Nombre y Sillas) - Estilo "Nube" blanca */
+.mesa-label-top {
+    position: absolute;
+    top: -15px;
+    /* Flotando encima de la imagen */
+    background: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+    z-index: 2;
+}
+
+.mesa-name {
+    font-weight: 800;
+    color: #2c3e50;
+    font-size: 1rem;
+    text-transform: uppercase;
+}
+
+.mesa-seats {
+    font-size: 0.75rem;
+    color: #7f8c8d;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Etiqueta Camarero (Roja, superpuesta) */
+.mesa-waiter-tag {
+    position: absolute;
+    top: 30px;
+    /* Debajo de la etiqueta blanca, superpuesta a la mesa */
+    background: #ce4535;
+    /* Rojo GMS */
+    color: white;
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 3;
+    font-weight: 500;
+}
+
+
+/* ==============================================
+   ZONA DERECHA: NAVEGACIÓN LATERAL
+   ============================================== */
+.salas-navigation {
+    width: 280px;
+    background: #ce4535;
+    /* Rojo GMS */
+    padding: 20px;
+    overflow-y: auto;
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 200;
+}
+
+.sala-nav-link {
+    display: block;
+    padding: 15px 20px;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+}
+
+.sala-nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-5px);
+}
+
+.sala-nav-link.active {
+    background: white;
+    color: #ce4535;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transform: scale(1.02);
+    border: none;
+}
+
+/* ==============================================
+   FORMULARIO INTERSTICIAL (ASIGNAR/LIBERAR)
+   ============================================== */
+.interstitial-form {
+    background: white;
+    padding: 40px 50px;
+    /* Más padding lateral */
+    border-radius: 15px;
+    /* Bordes un poco menos redondeados */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 500px;
+    /* Un poco más ancho */
+    text-align: center;
+    z-index: 100;
+    animation: fadeIn 0.3s ease-out;
 }
 
 .interstitial-form h2 {
-    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 5px;
+    font-size: 2rem;
+    /* Título más grande */
     font-weight: 700;
-    color: #333;
-    margin-bottom: 10px;
 }
+
 .interstitial-form p {
+    color: #34495e;
+    margin-bottom: 8px;
     font-size: 1.1rem;
-    color: #555;
-    margin-bottom: 20px;
 }
-.interstitial-form p strong {
-    color: #333;
+
+.interstitial-form strong {
+    color: #2c3e50;
     font-weight: 600;
 }
 
-/* Estilo del formulario (inputs, labels) */
 .form-full-page {
+    margin-top: 25px;
     display: flex;
-    flex-direction: column; /* Apila verticalmente */
-    gap: 15px; /* Espacio entre elementos */
-}
-.form-full-page label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #666;
-}
-/* Input para número de comensales */
-.form-full-page input[type="number"] {
-    font-family: 'Poppins', sans-serif;
-    font-size: 1.1rem;
-    padding: 12px 15px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    text-align: center;
+    flex-direction: column;
+    gap: 20px;
 }
 
-/* Contenedor de botones (Confirmar/Cancelar) */
+.form-full-page label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: -10px;
+    display: block;
+    text-align: left;
+    font-size: 1rem;
+}
+
+.form-full-page input[type="number"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #bdc3c7;
+    /* Borde gris más visible */
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-family: 'Poppins', sans-serif;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+    color: #2c3e50;
+}
+
+.form-full-page input[type="number"]:focus {
+    border-color: #ce4535;
+    /* Rojo al enfocar */
+    outline: none;
+}
+
 .form-actions {
     display: flex;
-    justify-content: center; /* Centra los botones */
-    gap: 15px; /* Espacio entre botones */
-    margin-top: 10px;
+    gap: 20px;
+    /* Más espacio entre botones */
+    justify-content: center;
+    margin-top: 15px;
 }
 
-/* Botones genéricos de las páginas de acción (<a> y <button>) */
-.form-actions button,
-.form-actions a {
-    font-family: 'Poppins', sans-serif;
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    text-decoration: none; /* Para los <a> (Cancelar) */
-    transition: all 0.2s ease; /* Animación hover */
-}
-
-/* Botón primario (verde) */
 .btn-primary {
-    background-color: #27ae60;
+    background: #2ecc71;
+    /* Verde brillante */
     color: white;
-}
-.btn-primary:hover {
-    background-color: #219d55;
-}
-/* Botón peligro (rojo) */
-.btn-danger {
-    background-color: #ce4535;
-    color: white;
-}
-.btn-danger:hover {
-    background-color: #b93e2f;
-}
-/* Botón secundario (gris) */
-.btn-secondary {
-    background-color: #bdc3c7;
-    color: #34495e;
-}
-.btn-secondary:hover {
-    background-color: #95a5a6;
-}
-
-/* Estilo para el mensaje de error (ej. "nº comensales no válido") */
-.form-error-message {
-    background-color: #f8d7da; /* Fondo rosa */
-    color: #721c24; /* Texto rojo oscuro */
-    border: 1px solid #f5c6cb; /* Borde rosa */
+    border: none;
+    padding: 12px 30px;
     border-radius: 8px;
-    padding: 15px;
-    font-weight: 500;
-    margin-bottom: 15px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex: 1;
+    text-transform: capitalize;
 }
 
+.btn-primary:hover {
+    background: #27ae60;
+}
 
-/* ==============================================
-   RESPONSIVE (ESCRITORIO GRANDE)
-   ============================================== */
-@media (min-width: 900px) {
-    /* Agrandamos las mesas en escritorio */
-    .mesa-img {
-        width: 160px; /* Tamaño normal de escritorio */
+.btn-danger {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex: 1;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+.btn-secondary {
+    background: #95a5a6;
+    /* Gris */
+    color: white;
+    text-decoration: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    flex: 1;
+}
+
+.btn-secondary:hover {
+    background: #7f8c8d;
+}
+
+.form-error-message {
+    background: #fce4e4;
+    color: #c0392b;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #f5c6cb;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
     }
-    .mesa {
-        gap: 5px; /* Más espacio entre elementos */
-    }
-    .mesa-label {
-        font-size: 0.8rem;
-        padding: 3px 8px;
-    }
-    .mesa-sillas {
-        font-size: 1rem;
-        padding: 2px 8px;
-    }
-    .mesa-camarero {
-        font-size: 0.8rem;
-        padding: 2px 6px;
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-
 /* ==============================================
-   RESPONSIVE Y MÓVIL
+   RESPONSIVE
    ============================================== */
-/* (Se usa 899px para no solapar con el min-width: 900px) */
-@media (max-width: 899px) {
-
-    /* 1. Ajustamos la altura de la sala */
+@media (max-width: 900px) {
     .sala-container {
-        display: block; /* Rompemos el flex (layout y nav uno encima de otro) */
-        height: auto; /* Altura automática */
+        flex-direction: column;
+        height: auto;
     }
-    
+
     .sala-layout {
-        width: 100%; /* Ocupa todo el ancho */
-        /* Altura: 100% ventana MENOS alto del header responsive (aprox 180px) */
-        height: calc(100vh - 180px); 
+        height: 60vh;
+        border-right: none;
+        border-bottom: 5px solid #d1a785;
     }
 
-    /* 2. Ocultamos la barra lateral de escritorio */
     .salas-navigation {
-        display: none;
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 15px;
+        gap: 10px;
+        white-space: nowrap;
     }
 
-    /* 3. Mostramos el botón flotante */
-    .sala-layout-dropdown {
-        display: block; /* Hacemos visible el botón de navegación móvil */
+    .sala-nav-link {
+        flex: 0 0 auto;
+        padding: 10px 20px;
     }
 
-    /* 4. Ajustamos el formulario (asignar/liberar) en móvil */
+    .mesas-grid-overlay {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 20px;
+        padding: 60px 20px;
+    }
+
+    .mesa-card {
+        width: 120px;
+        height: auto;
+    }
+
     .interstitial-form {
-        width: 90%; /* Más ancho en móvil */
-        padding: 20px; /* Menos relleno */
-    }
-    
-    .interstitial-form h2 {
-        font-size: 1.3rem;
-    }
-    
-    .interstitial-form p {
-        font-size: 1rem;
-    }
-
-    /* Apila los botones (Confirmar / Cancelar) verticalmente */
-    .form-actions {
-        flex-direction: column; 
+        margin: 20px;
+        padding: 25px;
     }
 }
