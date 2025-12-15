@@ -1,7 +1,10 @@
 <?php
+// Inicia sesión
 session_start();
+// Requiere conexión a base de datos
 require_once __DIR__ . '/../../CONEXION/conexion.php';
 
+// --- Verificación de sesión de Administrador ---
 if (!isset($_SESSION['loginok']) || $_SESSION['rol'] != 2) {
     header("Location: ../login.php");
     exit();
@@ -9,7 +12,7 @@ if (!isset($_SESSION['loginok']) || $_SESSION['rol'] != 2) {
 
 $username = htmlspecialchars($_SESSION['username']);
 
-// Obtener todos los usuarios activos
+// --- Obtener todos los usuarios ACTIVE (fecha_baja IS NULL) ---
 try {
     $sql = "
         SELECT 
@@ -21,7 +24,8 @@ try {
     $stmt = $conn->query($sql);
     $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Obtener usuarios inactivos (baja lógica)
+    // --- Obtener usuarios INACTIVOS (fecha_baja IS NOT NULL) ---
+    // Esto es para la gestión de usuarios borrados lógicamente que se pueden restaurar
     $sql_inactivos = "
         SELECT 
             id, username, nombre, apellido, email, rol, fecha_baja
@@ -36,6 +40,7 @@ try {
     die("Error: " . $e->getMessage());
 }
 
+// Función auxiliar para mostrar el nombre del rol
 function getNombreRol($rol) {
     switch ($rol) {
         case 1: return 'Camarero';
@@ -51,6 +56,7 @@ function getNombreRol($rol) {
 <head>
     <meta charset="UTF-8">
     <title>Gestión de Usuarios - Admin</title>
+    <!-- Fuentes y estilos -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="../../../css/admin.css">
@@ -59,6 +65,7 @@ function getNombreRol($rol) {
 </head>
 
 <body>
+    <!-- Header de navegación -->
     <nav class="main-header">
         <div class="header-logo">
             <img src="../../../img/basic_logo_blanco.png" alt="Logo GMS">
@@ -93,6 +100,7 @@ function getNombreRol($rol) {
     <div class="container">
         <h1 class="page-title">Gestión de Usuarios</h1>
 
+        <!-- Botones Principales -->
         <button class="btn btn-primary" id="btn-nuevo-usuario">
             <i class="fa-solid fa-plus"></i> Nuevo Usuario
         </button>
@@ -100,6 +108,7 @@ function getNombreRol($rol) {
             <i class="fa-solid fa-user-slash"></i> Usuarios Inactivos
         </button>
 
+        <!-- Tabla de usuarios ACTIVOS -->
         <div class="card">
             <div class="card-body">
                 <table class="table">
@@ -124,6 +133,7 @@ function getNombreRol($rol) {
                                 <td><?= getNombreRol($user['rol']) ?></td>
                                 <td><?= date('d/m/Y', strtotime($user['fecha_alta'])) ?></td>
                                 <td>
+                                    <!-- Botón Editar con data attributes -->
                                     <button class="btn btn-sm btn-info btn-editar-usuario" 
                                             data-id="<?= $user['id'] ?>"
                                             data-username="<?= htmlspecialchars($user['username']) ?>"
@@ -133,6 +143,8 @@ function getNombreRol($rol) {
                                             data-rol="<?= $user['rol'] ?>">
                                         <i class="fa-solid fa-edit"></i>
                                     </button>
+                                    
+                                    <!-- Botón Eliminar (Protección: No se puede borrar uno mismo) -->
                                     <?php if ($user['id'] != $_SESSION['id_usuario']): ?>
                                         <button class="btn btn-sm btn-danger btn-eliminar-usuario" 
                                                 data-id="<?= $user['id'] ?>" 
@@ -149,7 +161,7 @@ function getNombreRol($rol) {
         </div>
     </div>
 
-    <!-- Modal para crear usuario -->
+    <!-- Modal para CREAR usuario -->
     <div id="modalCrear" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close" data-modal="modalCrear">&times;</span>
@@ -188,7 +200,7 @@ function getNombreRol($rol) {
         </div>
     </div>
 
-    <!-- Modal para editar usuario -->
+    <!-- Modal para EDITAR usuario -->
     <div id="modalEditar" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close" data-modal="modalEditar">&times;</span>
@@ -197,6 +209,7 @@ function getNombreRol($rol) {
                 <input type="hidden" name="id_usuario" id="edit_id">
                 <div class="form-group">
                     <label>Username</label>
+                    <!-- Username deshabilitado para edición -->
                     <input type="text" id="edit_username" class="form-control" disabled>
                 </div>
                 <div class="form-group">
@@ -224,7 +237,7 @@ function getNombreRol($rol) {
         </div>
     </div>
 
-    <!-- Modal para usuarios inactivos -->
+    <!-- Modal para USUARIOS INACTIVOS -->
     <div id="modalInactivos" class="modal" style="display: none;">
         <div class="modal-content" style="max-width: 800px;">
             <span class="close" data-modal="modalInactivos">&times;</span>
@@ -249,12 +262,14 @@ function getNombreRol($rol) {
                                 <td><?= htmlspecialchars($user['nombre'] . ' ' . $user['apellido']) ?></td>
                                 <td><?= date('d/m/Y H:i', strtotime($user['fecha_baja'])) ?></td>
                                 <td>
+                                    <!-- Botón RESTAURAR -->
                                     <button class="btn btn-sm btn-success btn-rehabilitar-usuario" 
                                             data-id="<?= $user['id'] ?>" 
                                             data-username="<?= htmlspecialchars($user['username']) ?>"
                                             title="Rehabilitar">
                                         <i class="fa-solid fa-trash-restore"></i>
                                     </button>
+                                    <!-- Botón BORRADO PERMANENTE -->
                                     <button class="btn btn-sm btn-danger btn-borrar-permanente" 
                                             data-id="<?= $user['id'] ?>" 
                                             data-username="<?= htmlspecialchars($user['username']) ?>"
@@ -270,6 +285,7 @@ function getNombreRol($rol) {
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../../../JS/admin_usuarios.js"></script>
 </body>

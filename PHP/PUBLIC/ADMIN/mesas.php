@@ -1,7 +1,10 @@
 <?php
+// Inicia sesión
 session_start();
+// Requiere conexión a base de datos
 require_once __DIR__ . '/../../CONEXION/conexion.php';
 
+// --- Verificación de sesión de Administrador ---
 if (!isset($_SESSION['loginok']) || $_SESSION['rol'] != 2) {
     header("Location: ../login.php");
     exit();
@@ -9,17 +12,15 @@ if (!isset($_SESSION['loginok']) || $_SESSION['rol'] != 2) {
 
 $username = htmlspecialchars($_SESSION['username']);
 
-// Obtener todas las salas para el selector
+// --- Obtener datos para el formulario y tabla ---
 try {
+    // Listado de salas para llenar el selector (select) en el modal de Crear/Editar
     $sql_salas = "SELECT id, nombre FROM salas ORDER BY nombre";
     $stmt_salas = $conn->query($sql_salas);
     $salas = $stmt_salas->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("Error al obtener salas: " . $e->getMessage());
-}
 
-// Obtener todas las mesas con información de sala
-try {
+    // Listado completo de mesas para visualizar en la tabla
+    // Incluye el nombre de la sala relacionada usando un INNER JOIN
     $sql = "
         SELECT 
             m.id,
@@ -36,9 +37,10 @@ try {
     $mesas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
 } catch (PDOException $e) {
-    die("Error al obtener mesas: " . $e->getMessage());
+    die("Error al obtener datos: " . $e->getMessage());
 }
 
+// Función auxiliar para mostrar el estado en texto legible en lugar de número
 function getEstadoMesa($estado) {
     switch ($estado) {
         case 1: return 'Libre';
@@ -54,6 +56,7 @@ function getEstadoMesa($estado) {
 <head>
     <meta charset="UTF-8">
     <title>Gestión de Mesas - Admin</title>
+    <!-- Fuentes y estilos externos -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="../../../css/admin.css">
@@ -62,6 +65,7 @@ function getEstadoMesa($estado) {
 </head>
 
 <body>
+    <!-- Header de navegación -->
     <nav class="main-header">
         <div class="header-logo">
             <img src="../../../img/basic_logo_blanco.png" alt="Logo GMS">
@@ -102,10 +106,12 @@ function getEstadoMesa($estado) {
     <div class="container">
         <h1 class="page-title">Gestión de Mesas</h1>
 
+        <!-- Botón para abrir modal de creación -->
         <button class="btn btn-primary" id="btn-nueva-mesa">
             <i class="fa-solid fa-plus"></i> Nueva Mesa
         </button>
 
+        <!-- Tabla de listado de mesas -->
         <div class="card">
             <div class="card-body">
                 <table class="table">
@@ -127,11 +133,13 @@ function getEstadoMesa($estado) {
                                 <td><?= htmlspecialchars($mesa['sala_nombre']) ?></td>
                                 <td><?= $mesa['sillas'] ?></td>
                                 <td>
+                                    <!-- Badge de estado con color dinámico -->
                                     <span class="badge badge-<?= $mesa['estado'] == 1 ? 'success' : ($mesa['estado'] == 2 ? 'danger' : 'warning') ?>">
                                         <?= getEstadoMesa($mesa['estado']) ?>
                                     </span>
                                 </td>
                                 <td>
+                                    <!-- Botones de Acción (Editar/Eliminar) con data-attributos para JS -->
                                     <button class="btn btn-sm btn-info btn-editar-mesa" 
                                             data-id="<?= $mesa['id'] ?>"
                                             data-nombre="<?= htmlspecialchars($mesa['nombre']) ?>"
@@ -153,7 +161,7 @@ function getEstadoMesa($estado) {
         </div>
     </div>
 
-    <!-- Modal para crear mesa -->
+    <!-- Modal para CREAR mesa -->
     <div id="modalCrear" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close" data-modal="modalCrear">&times;</span>
@@ -167,6 +175,7 @@ function getEstadoMesa($estado) {
                     <label>Sala *</label>
                     <select name="id_sala" class="form-control" required>
                         <option value="">Seleccionar sala...</option>
+                        <!-- Iterar salas dinámicamente -->
                         <?php foreach ($salas as $sala): ?>
                             <option value="<?= $sala['id'] ?>"><?= htmlspecialchars($sala['nombre']) ?></option>
                         <?php endforeach; ?>
@@ -181,13 +190,13 @@ function getEstadoMesa($estado) {
         </div>
     </div>
 
-    <!-- Modal para editar mesa -->
+    <!-- Modal para EDITAR mesa -->
     <div id="modalEditar" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close" data-modal="modalEditar">&times;</span>
             <h2>Editar Mesa</h2>
             <form method="POST" action="../../PROCEDIMIENTOS/ADMIN/editar_mesa.php">
-                <input type="hidden" name="id_mesa" id="edit_id">
+                <input type="hidden" name="id_mesa" id="edit_id"> <!-- ID oculto -->
                 <div class="form-group">
                     <label>Nombre de la Mesa *</label>
                     <input type="text" name="nombre" id="edit_nombre" class="form-control" required>
@@ -209,6 +218,7 @@ function getEstadoMesa($estado) {
         </div>
     </div>
 
+    <!-- Scripts externos y propios -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../../../JS/admin_mesas.js"></script>
 </body>

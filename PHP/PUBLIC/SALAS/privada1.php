@@ -1,19 +1,21 @@
 <?php
 // ===============================
-// PRIVADA 1 - Casa GMS
+// PRIVADA 1 - Vista de Sala PÃºblica
 // ===============================
 
-// --- INICIO DE SESIÓN ---
+// Inicia sesiÃ³n
 session_start();
+// Requiere conexiÃ³n a BD
 require_once '../../CONEXION/conexion.php';
 
-// --- VERIFICACIÓN DE SESIÓN ---
+// --- VERIFICACIÃ“N DE SESIÃ“N ---
+// Comprueba que el usuario estÃ© logueado correctamente
 if (!isset($_SESSION['loginok']) || $_SESSION['loginok'] !== true) {
     header("Location: ../login.php");
     exit();
 }
 
-// --- VERIFICAR EXISTENCIA DE USUARIO ---
+// Comprueba que el username exista en la sesiÃ³n
 if (!isset($_SESSION['username'])) {
     session_destroy();
     header("Location: ../login.php?error=session_expired");
@@ -22,7 +24,8 @@ if (!isset($_SESSION['username'])) {
 
 $username = $_SESSION['username'];
 
-// --- CONSULTAR ID DEL CAMARERO ---
+// --- CONSULTAR ID DE USUARIO ---
+// Obtener ID del usuario desde la BD
 try {
     $stmt = $conn->prepare("SELECT id FROM users WHERE username = :username LIMIT 1");
     $stmt->execute([':username' => $username]);
@@ -39,16 +42,17 @@ if (!$camarero) {
 
 $id_camarero = $camarero['id'];
 
-// --- VARIABLES PARA HEADER ---
+// --- VARIABLES HEADER ---
 $nombre = htmlspecialchars($_SESSION['nombre'] ?? $username);
 $rol = $_SESSION['rol'] ?? 1;
 $saludo = "Buenos días";
 
-// --- VARIABLES DE SALA ---
-$id_sala_actual = 6;
+// --- CONFIG SALA: PRIVADA 1 ---
+$id_sala_actual = 6; 
 $nombre_sala_actual = "Privada 1";
 
-// --- CONSULTA: MESAS DE LA SALA ---
+// --- OBTENER MESAS ---
+// Mesas de la sala Privada 1
 try {
     $stmt_mesas = $conn->prepare("
         SELECT m.*, u.username AS camarero
@@ -62,7 +66,8 @@ try {
     die("Error al cargar las mesas: " . $e->getMessage());
 }
 
-// --- CONSULTA: SALAS PARA NAVEGACIÓN ---
+// --- OBTENER TODAS LAS SALAS ---
+// Para la navegaciÃ³n
 try {
     $stmt_salas = $conn->query("SELECT id, nombre FROM salas");
     $salas = $stmt_salas->fetchAll(PDO::FETCH_ASSOC);
@@ -77,30 +82,34 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($nombre_sala_actual); ?> - Casa GMS</title>
 
+    <!-- LibrerÃ­as CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="icon" type="image/png" href="../../../img/icono.png">
 
+    <!-- Estilos de Sala -->
     <link rel="stylesheet" href="../../../css/panel_principal.css">
     <link rel="stylesheet" href="../../../css/salas_general.css">
+    <!-- EspecÃ­fico de Privada 1 -->
     <link rel="stylesheet" href="../../../css/privada1.css">
+    <!-- Estilo general para mesas privadas -->
     <link rel="stylesheet" href="../../../css/mesas_privadas.css">
 </head>
 <body>
 
     <?php 
-    // --- HEADER GLOBAL ---
+    // Header
     require_once '../header.php'; 
     ?>
 
     <div class="sala-container">
-
+        <!-- Layout Sala Privada 1 -->
         <main class="sala-layout privada1">
 
+            <!-- Dropdown Responsive -->
             <div class="sala-layout-dropdown dropdown">
                 <button class="btn btn-salas" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fa-solid fa-layer-group"></i>
@@ -121,20 +130,20 @@ try {
                 </ul>
             </div>
 
+            <!-- Mesas Loop -->
             <?php foreach ($mesas as $mesa): ?>
                 <?php 
                     $clase = $mesa['estado'] == 2 ? 'ocupada' : 'libre';
-                    $accion = $mesa['estado'] == 1 
-                        ? './../../PROCEDIMIENTOS/asignar_mesa.php' 
-                        : './../../PROCEDIMIENTOS/liberar_mesa.php';
-                ?>
-                <?php
+                    // Determinar acciÃ³n: asignar o liberar
                     $url_destino = $mesa['estado'] == 1 
                         ? '../asignar_mesa.php?id_mesa=' . $mesa['id'] 
                         : '../liberar_mesa.php?id_mesa=' . $mesa['id'];
                 ?>
                 <a href="<?php echo $url_destino; ?>" class="mesa <?php echo $clase; ?>" id="mesa-<?php echo $mesa['id']; ?>" style="text-decoration: none; display: block; cursor: pointer;">
+                    
+                    <!-- Imagen especÃ­fica para Privada 1 -->
                     <img src="../../../img/mesa_privada1.png" alt="Mesa" class="mesa-img">
+                    
                     <span class="mesa-label"><?php echo htmlspecialchars($mesa['nombre']); ?></span>
 
                     <div class="mesa-sillas">
@@ -150,12 +159,12 @@ try {
             <?php endforeach; ?>
         </main>
 
+        <!-- NavegaciÃ³n Lateral -->
         <aside class="salas-navigation">
             <?php foreach ($salas as $sala): ?>
                 <?php
                     $clase_activa = ($sala['id'] == $id_sala_actual) ? 'active' : '';
                     $nombre_fichero = strtolower(str_replace(' ', '', $sala['nombre']));
-                   
                     $url = $nombre_fichero . ".php"; 
                 ?>
                 <a href="<?php echo $url; ?>" class="sala-nav-link <?php echo $clase_activa; ?>">
@@ -166,6 +175,7 @@ try {
 
     </div>
 
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

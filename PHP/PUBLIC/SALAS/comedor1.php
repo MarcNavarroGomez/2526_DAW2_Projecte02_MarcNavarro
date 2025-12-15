@@ -1,14 +1,21 @@
 <?php
+// ===============================
+// COMEDOR 1 - Vista de Sala PÃºblica
+// ===============================
+
+// Inicia o reanuda la sesiÃ³n
 session_start();
+// Requiere la conexiÃ³n a la base de datos
 require_once '../../CONEXION/conexion.php';
 
-// Verificación de sesión
+// --- VERIFICACIÃ“N DE SESIÃ“N ---
+// Si no hay login vÃ¡lido, redirigir al login
 if (!isset($_SESSION['loginok']) || $_SESSION['loginok'] !== true) {
     header("Location: ../login.php");
     exit();
 }
 
-// --- CORRECCIÓN: Asegurarse de que username exista ---
+// Verificar que 'username' estÃ© seteado en la sesiÃ³n
 if (!isset($_SESSION['username'])) {
     session_destroy();
     header("Location: ../login.php?error=session_expired");
@@ -16,31 +23,32 @@ if (!isset($_SESSION['username'])) {
 }
 $username = $_SESSION['username'];
 
-// Consultar el ID del camarero correspondiente
+// --- CONSULTAR ID DE USUARIO ---
+// Obtener el ID del usuario actual para validaciones (ej. asignar mesa)
 $stmt = $conn->prepare("SELECT id FROM users WHERE username = :username LIMIT 1");
 $stmt->execute([':username' => $username]);
 $camarero = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Si no se encuentra, forzar logout por seguridad
+// Si el usuario no existe en BD (caso raro), cerrar sesiÃ³n
 if (!$camarero) {
     session_destroy();
     header("Location: ../login.php?error=user_not_found");
     exit();
 }
-
-// Guardar el id para usarlo en operaciones
 $id_camarero = $camarero['id'];
 
-// --- CORRECCIÓN: Añadir variables para header.php ---
-$nombre = htmlspecialchars($_SESSION['nombre'] ?? $username); // Usar username si 'nombre' no está
-$rol = $_SESSION['rol'] ?? 1; // Asumir rol 1 si no está definido
-$saludo = "Buenos días"; // Puedes añadir lógica de hora
-    
-// Sala Comedor 1
-$id_sala_actual = 4;
-$nombre_sala_actual = "Comedor 1"; // Renombrado por consistencia
+// --- DATOS PARA HEADER ---
+$nombre = htmlspecialchars($_SESSION['nombre'] ?? $username);
+$rol = $_SESSION['rol'] ?? 1;
+$saludo = "Buenos días"; // Mensaje por defecto
 
-// Obtener mesas
+// --- CONFIGURACIÃ“N DE SALA ACTUAL ---
+// ID hardcodeado especÃ­fico para este archivo (Comedor 1)
+$id_sala_actual = 4;
+$nombre_sala_actual = "Comedor 1"; 
+
+// --- OBTENER MESAS DE ESTA SALA ---
+// Consulta para sacar estado, nombre y camarero asignado (si lo hay)
 $stmt_mesas = $conn->prepare("
     SELECT m.*, u.username AS camarero
     FROM mesas m
@@ -50,7 +58,7 @@ $stmt_mesas = $conn->prepare("
 $stmt_mesas->execute(['sala' => $id_sala_actual]);
 $mesas = $stmt_mesas->fetchAll(PDO::FETCH_ASSOC);
 
-// --- CORRECCIÓN: Añadir consulta para la barra de navegación ---
+// --- OBTENER LISTADO DE SALAS (Para NavegaciÃ³n) ---
 try {
     $stmt_salas = $conn->query("SELECT id, nombre FROM salas");
     $salas = $stmt_salas->fetchAll(PDO::FETCH_ASSOC);
@@ -62,16 +70,18 @@ try {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title><?php echo $nombre_sala_actual; ?> - Casa GMS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title><?php echo $nombre_sala_actual; ?> - Casa GMS</title>
     
+    <!-- LibrerÃ­as externas: Bootstrap y FontAwesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Icono y CSS propios -->
     <link rel="icon" type="image/png" href="../../../img/icono.png">
-
     <link rel="stylesheet" href="../../../css/panel_principal.css">
     <link rel="stylesheet" href="../../../css/salas_general.css">
     <link rel="stylesheet" href="../../../css/comedor1.css">
@@ -79,13 +89,15 @@ try {
 <body>
 
     <?php 
-    // --- CORRECCIÓN: Incluir el header ---
+    // IntegraciÃ³n del Header comÃºn
     require_once '../header.php'; 
     ?>
 
     <div class="sala-container">
+        <!-- Contenedor principal de la sala -->
         <main class="sala-layout comedor1">
 
+            <!-- MenÃº desplegable para mÃ³viles -->
             <div class="sala-layout-dropdown dropdown">
                 <button class="btn btn-salas" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fa-solid fa-layer-group"></i>
@@ -93,6 +105,7 @@ try {
                 <ul class="dropdown-menu dropdown-menu-end">
                     <?php foreach ($salas as $sala_dropdown): ?>
                         <?php
+                            // LÃ³gica para resaltar la sala actual y generar enlaces
                             $clase_activa_dropdown = ($sala_dropdown['id'] == $id_sala_actual) ? 'active' : '';
                             $nombre_fichero_dropdown = strtolower(str_replace(' ', '', $sala_dropdown['nombre']));
                             $url_dropdown = $nombre_fichero_dropdown . ".php"; 
@@ -106,17 +119,19 @@ try {
                 </ul>
             </div>
 
+            <!-- IteraciÃ³n para mostrar cada mesa -->
             <?php foreach ($mesas as $mesa): ?>
                 <?php 
+                    // Determinar clase CSS segÃºn estado
                     $clase = $mesa['estado'] == 2 ? 'ocupada' : 'libre';
-                    $accion = $mesa['estado'] == 1 ? './../../PROCEDIMIENTOS/asignar_mesa.php' : './../../PROCEDIMIENTOS/liberar_mesa.php';
                 ?>
                 <?php
-                    // Enlace a las páginas públicas de formulario (Frontend)
+                    // URL destino: asignar mesa (estado 1) o liberar mesa (estado 2)
                     $url_destino = $mesa['estado'] == 1 
                         ? '../asignar_mesa.php?id_mesa=' . $mesa['id'] 
                         : '../liberar_mesa.php?id_mesa=' . $mesa['id'];
                 ?>
+                <!-- Enlace que cubre toda la mesa -->
                 <a href="<?php echo $url_destino; ?>" class="mesa <?php echo $clase; ?>" id="mesa-<?php echo $mesa['id']; ?>" style="text-decoration: none; display: block; cursor: pointer;">
                     
                     <img src="../../../img/mesa2.png" alt="Mesa" class="mesa-img">
@@ -124,6 +139,7 @@ try {
                     <span class="mesa-label"><?php echo htmlspecialchars($mesa['nombre']); ?></span>
                     <div class="mesa-sillas"><i class="fa-solid fa-chair"></i> <?php echo $mesa['sillas']; ?></div>
                     
+                    <!-- Si estÃ¡ ocupada, mostrar quiÃ©n la asignÃ³ -->
                     <?php if ($mesa['estado'] == 2): ?>
                         <div class="mesa-camarero">
                             Asig: <?php echo htmlspecialchars($mesa['camarero'] ?? 'N/A'); ?>
@@ -133,14 +149,12 @@ try {
             <?php endforeach; ?>
         </main>
 
+        <!-- Barra lateral de navegaciÃ³n (Desktop) -->
         <aside class="salas-navigation">
             <?php foreach ($salas as $sala): ?>
                 <?php
                     $clase_activa = ($sala['id'] == $id_sala_actual) ? 'active' : '';
-                    
-                    // Lógica para nombres de fichero (ej. Privada 1 -> sprivada1.php)
                     $nombre_fichero = strtolower(str_replace(' ', '', $sala['nombre']));
-                    
                     $url = $nombre_fichero . ".php"; 
                 ?>
                 <a href="<?php echo $url; ?>" class="sala-nav-link <?php echo $clase_activa; ?>">
@@ -151,8 +165,8 @@ try {
 
     </div>
 
+    <!-- Scripts de Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
 
 </body>
 </html>

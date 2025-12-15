@@ -1,7 +1,10 @@
 <?php
+// Inicia sesión
 session_start();
+// Requiere conexión a base de datos
 require_once __DIR__ . '/../../CONEXION/conexion.php';
 
+// --- Verificación de sesión de Administrador ---
 if (!isset($_SESSION['loginok']) || $_SESSION['rol'] != 2) {
     header("Location: ../login.php");
     exit();
@@ -9,8 +12,10 @@ if (!isset($_SESSION['loginok']) || $_SESSION['rol'] != 2) {
 
 $username = htmlspecialchars($_SESSION['username']);
 
-// Obtener todas las salas
+// --- Obtener listado de salas ---
 try {
+    // Consulta para obtener salas junto con el conteo de mesas que tienen asignadas
+    // Usa LEFT JOIN para incluir salas que no tengan mesas aún (mesas_reales = 0)
     $sql = "
         SELECT 
             s.id,
@@ -36,6 +41,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <title>Gestión de Salas - Admin</title>
+    <!-- Fuentes y estilos externos -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="../../../css/admin.css">
@@ -44,6 +50,7 @@ try {
 </head>
 
 <body>
+    <!-- Header de navegación -->
     <nav class="main-header">
         <div class="header-logo">
             <img src="../../../img/basic_logo_blanco.png" alt="Logo GMS">
@@ -78,10 +85,12 @@ try {
     <div class="container">
         <h1 class="page-title">Gestión de Salas</h1>
 
+        <!-- Botón para abrir modal de creación -->
         <button class="btn btn-primary" id="btn-nueva-sala">
             <i class="fa-solid fa-plus"></i> Nueva Sala
         </button>
 
+        <!-- Tabla de listado de salas -->
         <div class="card">
             <div class="card-body">
                 <table class="table">
@@ -99,6 +108,7 @@ try {
                             <tr>
                                 <td><?= $sala['id'] ?></td>
                                 <td>
+                                    <!-- Mostrar miniatura de imagen si existe -->
                                     <?php if ($sala['imagen']): ?>
                                         <img src="../../../img/salas/<?= htmlspecialchars($sala['imagen']) ?>" 
                                              alt="Sala" class="img-thumbnail" style="width: 80px; height: 60px;">
@@ -109,6 +119,7 @@ try {
                                 <td><?= htmlspecialchars($sala['nombre']) ?></td>
                                 <td><?= $sala['mesas_reales'] ?></td>
                                 <td>
+                                    <!-- Botones de Acción (Imagen/Eliminar) -->
                                     <button class="btn btn-sm btn-warning btn-cambiar-imagen" 
                                             data-id="<?= $sala['id'] ?>">
                                         <i class="fa-solid fa-image"></i> Imagen
@@ -127,16 +138,18 @@ try {
         </div>
     </div>
 
-    <!-- Modal para crear sala -->
+    <!-- Modal para CREAR sala -->
     <div id="modalCrear" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close" data-modal="modalCrear">&times;</span>
             <h2>Nueva Sala</h2>
+            <!-- Formulario con enctype para subir archivos -->
             <form method="POST" action="../../PROCEDIMIENTOS/ADMIN/crear_sala.php" enctype="multipart/form-data">
                 <div class="form-group">
                     <label>Nombre de la Sala *</label>
                     <input type="text" name="nombre" class="form-control" required>
                 </div>
+                <!-- Campo opcional -->
                 <div class="form-group">
                     <label>Número de Mesas</label>
                     <input type="number" name="num_mesas" class="form-control" min="0" value="0">
@@ -151,7 +164,7 @@ try {
         </div>
     </div>
 
-    <!-- Modal para cambiar imagen -->
+    <!-- Modal para CAMBIAR IMAGEN -->
     <div id="modalImagen" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close" data-modal="modalImagen">&times;</span>
@@ -168,6 +181,7 @@ try {
         </div>
     </div>
 
+    <!-- Scripts externos y propios -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../../../JS/admin_salas.js"></script>
 </body>

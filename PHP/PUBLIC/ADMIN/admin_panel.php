@@ -1,35 +1,40 @@
 <?php
+// Inicia sesión
 session_start();
+// Requiere conexión a base de datos
 require_once __DIR__ . '/../../CONEXION/conexion.php';
 
-// Verificar que sea administrador
+// --- Verificación de sesión de Administrador ---
+// Si no hay sesión o el rol no es 2 (Admin), redirige al login
 if (!isset($_SESSION['loginok']) || $_SESSION['rol'] != 2) {
     header("Location: ../login.php");
     exit();
 }
 
+// Variables de usuario para el header
 $nombre = htmlspecialchars($_SESSION['nombre']);
 $username = htmlspecialchars($_SESSION['username']);
 
-// Obtener estadísticas
+// --- Obtener estadísticas para el Dashboard ---
 try {
-    // Total de usuarios
+    // 1. Total de usuarios activos
     $stmt_users = $conn->query("SELECT COUNT(*) as total FROM users WHERE fecha_baja IS NULL");
     $total_users = $stmt_users->fetch(PDO::FETCH_ASSOC)['total'];
     
-    // Total de salas
+    // 2. Total de salas registradas
     $stmt_salas = $conn->query("SELECT COUNT(*) as total FROM salas");
     $total_salas = $stmt_salas->fetch(PDO::FETCH_ASSOC)['total'];
     
-    // Total de mesas
+    // 3. Total de mesas existentes
     $stmt_mesas = $conn->query("SELECT COUNT(*) as total FROM mesas");
     $total_mesas = $stmt_mesas->fetch(PDO::FETCH_ASSOC)['total'];
     
-    // Total de reservas activas
+    // 4. Total de reservas activas (estado 1 o 2)
     $stmt_reservas = $conn->query("SELECT COUNT(*) as total FROM reservas WHERE estado IN (1,2)");
     $total_reservas = $stmt_reservas->fetch(PDO::FETCH_ASSOC)['total'];
     
 } catch (PDOException $e) {
+    // Muestra error si falla la consulta
     die("Error: " . $e->getMessage());
 }
 ?>
@@ -41,6 +46,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - Casa GMS</title>
     
+    <!-- Fuentes y estilos externos -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="../../../css/admin.css">
@@ -48,6 +54,7 @@ try {
 </head>
 
 <body>
+    <!-- Header de navegación principal -->
     <nav class="main-header">
         <div class="header-logo">
             <img src="../../../img/basic_logo_blanco.png" alt="Logo GMS">
@@ -79,26 +86,30 @@ try {
     <div class="container">
         <h1 class="page-title">Panel de Administración</h1>
 
-        <!-- Estadísticas -->
+        <!-- Grid de Tarjetas de Estadísticas -->
         <div class="stats-grid">
+            <!-- Tarjeta Usuarios -->
             <div class="stat-card primary">
                 <div class="stat-value"><?= $total_users ?></div>
                 <div class="stat-label">Usuarios Activos</div>
                 <i class="stat-icon fa-solid fa-users"></i>
             </div>
             
+            <!-- Tarjeta Salas -->
             <div class="stat-card success">
                 <div class="stat-value"><?= $total_salas ?></div>
                 <div class="stat-label">Salas</div>
                 <i class="stat-icon fa-solid fa-door-open"></i>
             </div>
             
+            <!-- Tarjeta Mesas -->
             <div class="stat-card warning">
                 <div class="stat-value"><?= $total_mesas ?></div>
                 <div class="stat-label">Mesas</div>
                 <i class="stat-icon fa-solid fa-table"></i>
             </div>
             
+            <!-- Tarjeta Reservas -->
             <div class="stat-card info">
                 <div class="stat-value"><?= $total_reservas ?></div>
                 <div class="stat-label">Reservas Activas</div>
@@ -106,7 +117,7 @@ try {
             </div>
         </div>
 
-        <!-- Menú de administración -->
+        <!-- Menú de enlaces a secciones de administración -->
         <div class="admin-menu">
             <a href="./usuarios.php" class="admin-card">
                 <i class="fa-solid fa-users"></i>

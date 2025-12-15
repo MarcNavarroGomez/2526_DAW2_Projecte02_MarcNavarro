@@ -3,12 +3,11 @@
 session_start();
 
 // Requiere el archivo de conexión a la BBDD. 
-// __DIR__ . '/../CONEXION/conexion.php' es una ruta absoluta que significa:
-// "Desde el directorio de ESTE fichero (historico.php), sube un nivel y entra en /CONEXION/ y carga conexion.php".
+// __DIR__ . '/../CONEXION/conexion.php' es una ruta absoluta que asegura la búsqueda correcta del archivo.
 require_once __DIR__ . '/../CONEXION/conexion.php'; 
 
 // Establece la zona horaria por defecto a "Europa/Madrid".
-// Esto es CRÍTICO para que funciones como CURDATE() y NOW() en SQL usen la hora correcta.
+// Esto es IMPORTANTE para que las funciones de fecha y hora (como CURDATE) coincidan con el horario local del negocio.
 date_default_timezone_set('Europe/Madrid');
 
 // --- CONTROL DE SESIÓN ---
@@ -16,20 +15,20 @@ date_default_timezone_set('Europe/Madrid');
 if (!isset($_SESSION['loginok']) || $_SESSION['loginok'] !== true) {
     // Si el usuario no está logueado, lo redirige a la página de login.
     header("Location: login.php"); 
-    // Detiene la ejecución del script para que no se cargue nada más.
+    // Detiene la ejecución del script para que no se cargue el resto de la página.
     exit(); 
 }
 
 // --- RECUPERACIÓN DE DATOS DE SESIÓN ---
-// Guarda el username del usuario logueado.
+// Guarda el username del usuario logueado para mostrarlo en el header.
 $username = $_SESSION['username'];
-// Guarda el rol. Usa el "operador de fusión de null" (??): si $_SESSION['rol'] existe, usa ese valor; si no, usa 1 (camarero) por defecto.
+// Guarda el rol. Usa el "operador de fusión de null" (??): si $_SESSION['rol'] no está definido, asigna 1 (camarero) por defecto.
 $rol = $_SESSION['rol'] ?? 1; 
 
 // --- LÓGICA DEL HEADER (Saludo dinámico) ---
-// Obtiene la hora actual en formato 24h (ej: "08", "14", "22").
+// Obtiene la hora actual del servidor en formato 24h (ej: "09", "15", "21").
 $hora = date('H');
-// Define un saludo personalizado según la franja horaria.
+// Define un saludo personalizado ("Buenos días", "Buenas tardes", "Buenas noches") según la franja horaria.
 if ($hora >= 6 && $hora < 12) {
     $saludo = "Buenos días";
 } elseif ($hora >= 12 && $hora < 20) {
@@ -40,165 +39,157 @@ if ($hora >= 6 && $hora < 12) {
 // --- FIN LÓGICA HEADER ---
 
 
-// --- VARIABLES DE FILTRO (Para la tabla) ---
-// Recoge los valores de la URL (método GET). 
-// Si el parámetro (ej: ?sala=3) existe, usa su valor. Si no, usa un string vacío ''.
+// --- VARIABLES DE FILTRO (Para la tabla de histórico) ---
+// Recoge los valores pasados por la URL (método GET) para filtrar los resultados de la tabla.
+// Si el parámetro no existe, se asigna una cadena vacía ''.
 $filtro_sala = $_GET['sala'] ?? '';
-$filtro_mesa = $_GET['mesa'] ?? ''; // (Nota: Este filtro no se usa en la consulta SQL de abajo)
+$filtro_mesa = $_GET['mesa'] ?? ''; // (Este filtro se captura pero no se usa en la query actual, se podría implementar)
 $filtro_camarero = $_GET['camarero'] ?? ''; 
 $filtro_mes = $_GET['mes'] ?? '';           
 $filtro_dia = $_GET['dia'] ?? '';           
 $filtro_ano = $_GET['ano'] ?? '';
 
 // --- BLOQUE PRINCIPAL DE CONSULTAS A LA BBDD ---
-// Se usa un bloque try-catch para capturar cualquier error de SQL (PDOException).
+// Se usa un bloque try-catch para capturar cualquier error de SQL (PDOException) y evitar mostrar errores crudos al usuario.
 try {
     
     // --- 1. KPIs GENERALES (Tarjetas superiores) ---
-    // Esta consulta calcula las 4 estadísticas principales en una sola llamada.
+    // Esta consulta calcula las 4 estadísticas principales en una sola llamada para optimizar rendimiento.
     $sql_general = "SELECT 
-        COUNT(*) AS total_ocupaciones, /* Cuenta el total de registros de ocupaciones */
-        SUM(num_comensales) AS total_comensales, /* Suma todos los comensales históricos */
-        AVG(duracion_segundos) AS avg_duracion_segundos, /* Calcula la media de duración en segundos */
+        COUNT(*) AS total_ocupaciones, /* Cuenta el total histórico de registros de ocupaciones */
+        SUM(num_comensales) AS total_comensales, /* Suma todos los comensales atendidos históricamente */
+        AVG(duracion_segundos) AS avg_duracion_segundos, /* Calcula la media de duración de las ocupaciones en segundos */
         
-        /* Una subconsulta para contar solo las ocupaciones de HOY (CURDATE() = Fecha actual) */
+        /* Subconsulta correlacionada para contar solo las ocupaciones iniciadas HOY */
         (SELECT COUNT(*) FROM ocupaciones WHERE DATE(inicio_ocupacion) = CURDATE()) AS ocupaciones_hoy
         FROM ocupaciones
-        /* IMPORTANTE: Solo cuenta ocupaciones que ya han terminado (tienen fecha de fin) */
+        /* IMPORTANTE: Solo considera ocupaciones finalizadas (que tienen fecha de fin) para las medias y totales históricos */
         WHERE final_ocupacion IS NOT NULL";
     
-    // Ejecuta la consulta y obtiene la única fila de resultados.
+    // Ejecuta la consulta y obtiene la única fila de resultados como un array asociativo.
     $stats_general = $conn->query($sql_general)->fetch(PDO::FETCH_ASSOC);
 
-    // Convierte la duración promedio de segundos a minutos, redondeado a 1 decimal.
-    // Comprueba si es > 0 para evitar errores si no hay datos.
+    // Convierte la duración promedio de segundos a minutos, redondeando a 1 decimal para visualización.
+    // Verifica si es > 0 para evitar divisiones o valores extraños si la BD está vacía.
     $avg_minutos = ($stats_general['avg_duracion_segundos'] > 0) ? round($stats_general['avg_duracion_segundos'] / 60, 1) : 0;
     
-    // --- 2. Comparativa Mes Actual vs Anterior (para la tarjeta de "Tendencia") ---
-    // Consulta para comparar el rendimiento del mes actual con el mes anterior.
+    // --- 2. Comparativa Mes Actual vs Anterior (KPI de Tendencia) ---
+    // Consulta para obtener el volumen de ocupaciones de este mes y del anterior para calcular crecimiento.
     $sql_comparativa = "SELECT 
-        /* Cuenta 1 por cada registro de ESTE mes y ESTE año */
+        /* Suma condicional: Si el año y mes coinciden con los actuales, cuenta 1 */
         SUM(CASE WHEN YEAR(inicio_ocupacion) = YEAR(CURDATE()) AND MONTH(inicio_ocupacion) = MONTH(CURDATE()) THEN 1 ELSE 0 END) AS mes_actual,
         
-        /* Cuenta 1 por cada registro del MES ANTERIOR (CURDATE() - INTERVAL 1 MONTH) */
+        /* Suma condicional: Si coinciden con el mes pasado (Fecha actual menos 1 mes), cuenta 1 */
         SUM(CASE WHEN YEAR(inicio_ocupacion) = YEAR(CURDATE() - INTERVAL 1 MONTH) AND MONTH(inicio_ocupacion) = MONTH(CURDATE() - INTERVAL 1 MONTH) THEN 1 ELSE 0 END) AS mes_anterior
         FROM ocupaciones";
     $comparativa = $conn->query($sql_comparativa)->fetch(PDO::FETCH_ASSOC);
 
-    // Calcula el porcentaje de tendencia.
+    // Calcula el porcentaje de variación (tendencia).
     $tendencia_porcentaje = 0;
-    // IMPORTANTE: Comprueba si 'mes_anterior' > 0 para evitar un error de "División por cero".
+    // IMPORTANTE: Verifica que el mes anterior tenga datos (> 0) para evitar error de "División por cero".
     if ($comparativa['mes_anterior'] > 0) {
+        // Fórmula de variación porcentual: ((Nuevo - Viejo) / Viejo) * 100
         $tendencia_porcentaje = round((($comparativa['mes_actual'] - $comparativa['mes_anterior']) / $comparativa['mes_anterior']) * 100, 1);
     }
 
     // --- 3. DATOS GRÁFICO: Top 5 Camareros ---
-    // Obtiene los 5 camareros con más mesas asignadas.
+    // Obtiene los 5 camareros que más ocupaciones han gestionado.
     $sql_top_camareros = "SELECT u.username, COUNT(o.id) AS total_mesas
         FROM ocupaciones o
-        /* Une con la tabla 'users' para obtener el nombre (username) a partir del 'id_camarero' */
+        /* Une con la tabla 'users' para obtener el nombre del camarero */
         JOIN users u ON o.id_camarero = u.id 
-        GROUP BY o.id_camarero /* Agrupa las cuentas por camarero */
-        ORDER BY total_mesas DESC /* Ordena de mayor a menor */
-        LIMIT 5"; // Coge solo los 5 primeros
+        GROUP BY o.id_camarero /* Agrupa los resultados por camarero */
+        ORDER BY total_mesas DESC /* Ordena de mayor a menor actividad */
+        LIMIT 5"; // Limita a los top 5
     $top_camareros = $conn->query($sql_top_camareros)->fetchAll(PDO::FETCH_ASSOC);
     
-    // Para el gráfico de barras HTML, necesitamos saber cuál es el valor MÁXIMO (el 100%).
-    // array_column() saca solo los números (ej: [50, 45, 30, 20, 10])
-    // max() obtiene el más alto (ej: 50).
-    // Si el array está vacío, usa 1 para evitar división por cero.
+    // Calcula el valor máximo para escalar las barras del gráfico HTML (el 100% de la barra).
+    // array_column extrae la columna 'total_mesas'. max() encuentra el valor más alto.
     $max_camareros = !empty($top_camareros) ? max(array_column($top_camareros, 'total_mesas')) : 1;
     
     // --- 4. DATOS GRÁFICO: Top 5 Salas ---
-    // Misma lógica que el Top Camareros, pero agrupando por sala.
-    // NOTA: Ahora obtenemos id_sala a través de mesas
+    // Similar al anterior, pero para ver qué salas tienen más rotación.
     $sql_top_salas = "SELECT s.nombre, COUNT(o.id) AS total_ocupaciones
         FROM ocupaciones o
-        JOIN mesas m ON o.id_mesa = m.id
-        JOIN salas s ON m.id_sala = s.id
+        JOIN mesas m ON o.id_mesa = m.id /* Une ocupación con mesa */
+        JOIN salas s ON m.id_sala = s.id /* Une mesa con sala para saber el nombre de la sala */
         GROUP BY s.id
         ORDER BY total_ocupaciones DESC
         LIMIT 5";
     $top_salas = $conn->query($sql_top_salas)->fetchAll(PDO::FETCH_ASSOC);
-    // Saca el valor máximo de ocupaciones de sala.
+    // Valor máximo para escalar gráfico de salas.
     $max_salas = !empty($top_salas) ? max(array_column($top_salas, 'total_ocupaciones')) : 1;
 
-    // --- 5. DATOS GRÁFICO: Horas Pico ---
-    // Cuenta cuántas ocupaciones se iniciaron en cada hora del día (0-23).
+    // --- 5. DATOS GRÁFICO: Ocupación por Hora (Horas Pico) ---
+    // Analiza a qué horas se inician más ocupaciones.
     $sql_horas_pico = "SELECT HOUR(inicio_ocupacion) AS hora, COUNT(*) AS ocupaciones
         FROM ocupaciones
-        GROUP BY HOUR(inicio_ocupacion) /* Agrupa por la HORA */
-        ORDER BY hora"; // Ordena por hora
+        GROUP BY HOUR(inicio_ocupacion) /* Agrupa por la hora del día (0-23) */
+        ORDER BY hora";
     $horas_pico = $conn->query($sql_horas_pico)->fetchAll(PDO::FETCH_ASSOC);
     
-    // Prepara un array "plantilla" con 24 horas, todas a 0.
-    // Ej: [0 => 0, 1 => 0, 2 => 0, ..., 23 => 0]
+    // Inicializa un array con 24 posiciones (0 a 23) a cero.
     $horas_data = array_fill(0, 24, 0); 
-    // Rellena el array plantilla con los datos de la BBDD.
-    // Si hubo 10 ocupaciones a las 14h, $horas_data[14] pasará a valer 10.
-    foreach ($horas_pico as $hora) {
-        $horas_data[$hora['hora']] = $hora['ocupaciones']; 
+    // Rellena el array con los datos reales de la BD.
+    foreach ($horas_pico as $h) {
+        $horas_data[$h['hora']] = $h['ocupaciones']; 
     }
-    // Saca el valor máximo de la hora pico (el 100% de la barra).
+    // Máximo para el gráfico.
     $max_horas = !empty($horas_data) ? max($horas_data) : 1;
     
-    // --- 6. DATOS GRÁFICO: Días de la Semana ---
-    // Misma lógica que las horas, pero con días.
-    // WEEKDAY() en MySQL devuelve 0=Lunes, 1=Martes, ..., 6=Domingo.
+    // --- 6. DATOS GRÁFICO: Ocupación por Día de la Semana ---
+    // Analiza qué días de la semana son más concurridos.
+    // WEEKDAY() devuelve 0 para Lunes, 6 para Domingo.
     $sql_dias_semana = "SELECT WEEKDAY(inicio_ocupacion) AS dia_num, COUNT(*) AS ocupaciones
         FROM ocupaciones
         GROUP BY dia_num 
         ORDER BY dia_num";
     $dias_semana = $conn->query($sql_dias_semana)->fetchAll(PDO::FETCH_ASSOC);
     
-    // Array para las etiquetas del gráfico.
+    // Etiquetas para mostrar en el gráfico.
     $dias_labels = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-    // Array plantilla con 7 días, todos a 0.
+    // Inicializa array de 7 días a cero.
     $dias_data = array_fill(0, 7, 0);
-    // Rellena el array plantilla con los datos de la BBDD.
+    // Rellena con datos BD.
     foreach ($dias_semana as $dia) {
         $dias_data[$dia['dia_num']] = $dia['ocupaciones'];
     }
-    // Saca el valor máximo del día más ocupado.
+    // Máximo para escalar.
     $max_dias = !empty($dias_data) ? max($dias_data) : 1;
 
 
-    // --- 7. DATOS PARA LA TABLA DE HISTÓRICO ---
+    // --- 7. DATOS PARA LA TABLA DE HISTÓRICO Y FILTROS ---
     
-    // Primero, obtenemos los listados para rellenar los <select> del formulario de filtros.
+    // Obtiene listas para rellenar los desplegables (select) del formulario de filtros.
     $salas = $conn->query("SELECT id, nombre FROM salas ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
-    $mesas = $conn->query("SELECT id, nombre, id_sala FROM mesas ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
+    // $mesas = $conn->query("SELECT id, nombre, id_sala FROM mesas ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC); // (Variable disponible si se necesita filtro mesa futuro)
     $camareros_filtro = $conn->query("SELECT id, username FROM users WHERE rol = 1 ORDER BY username")->fetchAll(PDO::FETCH_ASSOC);
-    // Obtiene solo los años distintos que existen en la tabla (ej: [2025, 2024]).
+    // Obtiene los años distintos presentes en el histórico.
     $anos = $conn->query("SELECT DISTINCT YEAR(inicio_ocupacion) AS ano FROM ocupaciones ORDER BY ano DESC")->fetchAll(PDO::FETCH_ASSOC);
-    // Un array PHP para los nombres de los meses.
+    // Nombres de meses para el select.
     $meses = [ 
         1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',
         5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto',
         9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
     ];
     
-    // --- CONSTRUCCIÓN DE LA CONSULTA DINÁMICA PARA LA TABLA ---
-    // Esta es la consulta base. Obtiene todos los datos y los nombres de las tablas relacionadas.
-    // NOTA: Ahora obtenemos sala a través de mesas
+    // --- CONSTRUCCIÓN DINÁMICA DE LA CONSULTA PRINCIPAL (TABLA) ---
+    // Comienza la consulta base uniendo todas las tablas necesarias para mostrar info legible.
     $sql_tabla = "
         SELECT o.*, s.nombre AS sala_nombre, m.nombre AS mesa_nombre, u.username AS camarero
         FROM ocupaciones o
         JOIN mesas m ON o.id_mesa = m.id
         JOIN salas s ON m.id_sala = s.id
         JOIN users u ON o.id_camarero = u.id
-        WHERE 1=1"; // "WHERE 1=1" es un truco: permite añadir siempre "AND" sin preocuparse de si es el primer filtro.
+        WHERE 1=1"; // 'WHERE 1=1' es un patrón común para concatenar condiciones 'AND' sin preocuparse por ser la primera.
     
-    // Array para los parámetros de la consulta preparada (evita Inyección SQL).
-    $params_tabla = []; 
+    $params_tabla = []; // Array para los parámetros seguros (Prepared Statements).
 
-    // --- Añadir filtros dinámicamente ---
-    // Comprueba si la variable de filtro (de la URL) NO está vacía.
+    // --- Aplicación de filtros si existen ---
     if ($filtro_sala !== '') {
-        $sql_tabla .= " AND m.id_sala = :sala"; // Filtra por sala a través de mesas
-        $params_tabla[':sala'] = $filtro_sala; // Añade el valor al array de parámetros.
+        $sql_tabla .= " AND m.id_sala = :sala";
+        $params_tabla[':sala'] = $filtro_sala;
     }
-    // Repite la lógica para los demás filtros.
     if ($filtro_camarero !== '') {
         $sql_tabla .= " AND o.id_camarero = :camarero";
         $params_tabla[':camarero'] = $filtro_camarero;
@@ -216,22 +207,20 @@ try {
         $params_tabla[':dia'] = $filtro_dia;
     }
     
-    // Añade el orden y un límite (para no sobrecargar la página).
+    // Ordenar por fecha descendente y limitar a 200 resultados para no sobrecargar el navegador.
     $sql_tabla .= " ORDER BY o.inicio_ocupacion DESC LIMIT 200"; 
     
-    // Prepara la consulta SQL (ya construida dinámicamente).
+    // Preparar y ejecutar la consulta construida.
     $stmt_tabla = $conn->prepare($sql_tabla); 
-    // Ejecuta la consulta, pasando el array de parámetros. PDO se encarga de la seguridad.
     $stmt_tabla->execute($params_tabla); 
-    // Obtiene todos los resultados filtrados.
     $ocupaciones_tabla = $stmt_tabla->fetchAll(PDO::FETCH_ASSOC); 
 
-
-} catch(PDOException $e) { // Si cualquier consulta del bloque 'try' falla...
-    // ...detiene el script y muestra el error de la BBDD.
+} catch(PDOException $e) { 
+    // En caso de error crítico de base de datos, detener y mostrar mensaje (solo en desarrollo idealmente).
     die("Error de conexión o consulta: " . $e->getMessage());
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -239,14 +228,17 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Histórico y Estadísticas - GMS</title>
     
+    <!-- CSS Específico y librerías externas -->
     <link rel="stylesheet" href="../../css/historico.css"> 
     <link rel="icon" type="image/png" href="../../img/icono.png">
+    <!-- Bootstrap para layout y estilos base de tabla -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    
 </head>
 <body>
 
+<!-- Header de Navegación -->
 <nav class="main-header">
     <div class="header-logo">
         <a href="./index.php">
@@ -267,8 +259,9 @@ try {
         </a>
         <a href="./historico.php" class="nav-link"> <i class="fa-solid fa-chart-bar"></i> Histórico
         </a>
+        <!-- Enlace visible solo para administradores (Rol 2) -->
         <?php if ($rol == 2): ?>
-            <a href="admin_panel.php" class="nav-link">
+            <a href="ADMIN/admin_panel.php" class="nav-link">
                 <i class="fa-solid fa-gear"></i> Admin
             </a>
         <?php endif; ?>
@@ -281,9 +274,12 @@ try {
     </form>
 </nav>
 
+<!-- Contenido Principal -->
 <div class="main-content p-4">
 
+    <!-- KPI Cards: Métricas Generales -->
     <div class="row mb-4">
+        <!-- Ocupaciones Totales con indicador de tendencia -->
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="metric-card">
                 <i class="fas fa-bookmark metric-icon"></i>
@@ -304,6 +300,8 @@ try {
                 </div>
             </div>
         </div>
+        
+        <!-- Comensales Totales -->
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="metric-card success">
                 <i class="fas fa-users metric-icon"></i>
@@ -311,6 +309,8 @@ try {
                 <p class="metric-label">Comensales Totales</p>
             </div>
         </div>
+        
+        <!-- Ocupaciones de Hoy -->
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="metric-card danger">
                 <i class="fas fa-calendar-day metric-icon"></i>
@@ -318,6 +318,8 @@ try {
                 <p class="metric-label">Ocupaciones Hoy</p>
             </div>
         </div>
+        
+        <!-- Duración Promedio -->
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="metric-card info">
                 <i class="fas fa-clock metric-icon"></i>
@@ -326,7 +328,9 @@ try {
             </div>
         </div>
     </div>
-<div class="row mb-4">
+
+    <!-- Sección de Filtros y Tabla -->
+    <div class="row mb-4">
         <div class="col-12">
             <div class="glass-card p-4">
                 <div class="section-header">
@@ -336,10 +340,13 @@ try {
                     </h5>
                 </div>
                 
+                <!-- Formulario de Filtros (GET) -->
                 <form method="get" action="historico.php" class="filter-form-inline">
                     <fieldset>
                         <legend class="visually-hidden">Filtros de Búsqueda</legend>
-                        <div class="row g-2"> <div class="col-md-3 col-6">
+                        <div class="row g-2"> 
+                            <!-- Filtro Sala -->
+                            <div class="col-md-3 col-6">
                                 <label for="sala" class="form-label-sm">Sala</label>
                                 <select name="sala" id="sala" class="form-select form-select-sm">
                                     <option value="">Todas</option>
@@ -348,6 +355,7 @@ try {
                                     <?php endforeach; ?>
                                 </select>
                             </div>
+                            <!-- Filtro Camarero -->
                             <div class="col-md-3 col-6">
                                 <label for="camarero" class="form-label-sm">Camarero</label>
                                 <select name="camarero" id="camarero" class="form-select form-select-sm">
@@ -357,6 +365,7 @@ try {
                                     <?php endforeach; ?>
                                 </select>
                             </div>
+                            <!-- Filtro Año -->
                             <div class="col-md-2 col-4">
                                 <label for="ano" class="form-label-sm">Año</label>
                                 <select name="ano" id="ano" class="form-select form-select-sm">
@@ -366,6 +375,7 @@ try {
                                     <?php endforeach; ?>
                                 </select>
                             </div>
+                            <!-- Filtro Mes -->
                             <div class="col-md-2 col-4">
                                 <label for="mes" class="form-label-sm">Mes</label>
                                 <select name="mes" id="mes" class="form-select form-select-sm">
@@ -375,6 +385,7 @@ try {
                                     <?php endforeach; ?>
                                 </select>
                             </div>
+                            <!-- Filtro Día -->
                             <div class="col-md-1 col-4">
                                 <label for="dia" class="form-label-sm">Día</label>
                                 <select name="dia" id="dia" class="form-select form-select-sm">
@@ -384,6 +395,7 @@ try {
                                     <?php endfor; ?>
                                 </select>
                             </div>
+                            <!-- Botón Filtrar -->
                             <div class="col-md-1 col-12 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary btn-sm w-100">Filtrar</button>
                             </div>
@@ -391,6 +403,7 @@ try {
                     </fieldset>
                 </form>
                 
+                <!-- Tabla de Resultados -->
                 <div class="table-responsive mt-3" style="max-height: 400px; overflow-y: auto;">
                     <table class="table table-striped table-hover table-sm">
                         <thead class="table-dark" style="position: sticky; top: 0;">
@@ -406,10 +419,12 @@ try {
                         </thead>
                         <tbody>
                             <?php if (empty($ocupaciones_tabla)): ?>
+                                <!-- Mensaje si no hay resultados -->
                                 <tr>
                                     <td colspan="7" class="text-center">No se encontraron registros con esos filtros.</td>
                                 </tr>
                             <?php else: ?>
+                                <!-- Iteración de resultados -->
                                 <?php foreach ($ocupaciones_tabla as $o): ?>
                                     <tr>
                                         <td><?= htmlspecialchars($o['sala_nombre']) ?></td>
@@ -422,8 +437,8 @@ try {
                                         </td>
                                         <td><?= $o['num_comensales'] ?></td>
                                     </tr>
-                                <?php endforeach; // Fin del bucle de resultados ?>
-                            <?php endif; // Fin del if (empty...) ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -431,8 +446,11 @@ try {
             </div>
         </div>
     </div>
+
+    <!-- Sección de Gráficos (HTML/CSS Bars) -->
     <div class="row mb-4">
         
+        <!-- Gráfico Top Camareros -->
         <div class="col-lg-6 mb-4">
             <div class="glass-card p-4">
                 <h5 class="section-title mb-0"><i class="fas fa-medal text-warning"></i> Top Camareros</h5>
@@ -451,6 +469,7 @@ try {
             </div>
         </div>
 
+        <!-- Gráfico Salas más Ocupadas -->
         <div class="col-lg-6 mb-4">
             <div class="glass-card p-4">
                 <h5 class="section-title mb-0"><i class="fas fa-door-open text-danger"></i> Salas más Ocupadas</h5>
@@ -469,6 +488,7 @@ try {
             </div>
         </div>
 
+        <!-- Gráfico Ocupaciones por Hora -->
         <div class="col-lg-6 mb-4">
             <div class="glass-card p-4">
                 <h5 class="section-title mb-0"><i class="fas fa-clock text-info"></i> Ocupaciones por Hora</h5>
@@ -485,6 +505,7 @@ try {
             </div>
         </div>
 
+        <!-- Gráfico Ocupaciones por Día -->
         <div class="col-lg-6 mb-4">
             <div class="glass-card p-4">
                 <h5 class="section-title mb-0"><i class="fas fa-calendar-week text-success"></i> Ocupaciones por Día</h5>
@@ -503,9 +524,7 @@ try {
         </div>
 
     </div>
-
     
 </div>
-
 </body>
 </html>

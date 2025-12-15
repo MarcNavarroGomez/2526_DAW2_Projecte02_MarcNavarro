@@ -1,17 +1,23 @@
 <?php
+// Inicia sesión
 session_start();
+// Conexión a BD
 require_once __DIR__ . '/../CONEXION/conexion.php';
 
+// --- Verificación de sesión ---: Solo disponible para usuarios logueados
 if (!isset($_SESSION['loginok'])) {
     header("Location: login.php");
     exit();
 }
 
+// Obtener ID de la reserva a editar desde la URL
 $id_reserva = isset($_GET['id']) ? intval($_GET['id']) : 0;
+// Recuperar mensajes de error si los hay
 $mensaje = $_GET['error'] ?? '';
 
-// Obtener datos actuales
+// --- Obtener datos actuales de la reserva ---
 try {
+    // Consulta JOIN para mostrar información amigable (nombre de sala y mesa, no solo IDs)
     $stmt = $conn->prepare("
         SELECT r.*, m.nombre as mesa_nombre, s.nombre as sala_nombre 
         FROM reservas r
@@ -23,6 +29,7 @@ try {
     $stmt->execute([$id_reserva]);
     $reserva = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    // Si no existe, redirigir
     if (!$reserva) {
         header("Location: reservas.php?error=Reserva no encontrada");
         exit();
@@ -37,12 +44,14 @@ try {
 <head>
     <meta charset="UTF-8">
     <title>Editar Reserva - Casa GMS</title>
+    <!-- Fuentes y estilos -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="../../css/admin.css">
     <link rel="stylesheet" href="../../css/editar_reserva.css">
 </head>
 <body>
+    <!-- Header simple sin navegación compleja -->
     <nav class="main-header">
         <div class="header-logo">
             <img src="../../img/basic_logo_blanco.png" alt="Logo GMS">
@@ -53,12 +62,14 @@ try {
     <div class="edit-container">
         <h2 style="margin-bottom: 20px; color: #2c3e50;">Editar Datos de Reserva</h2>
         
+        <!-- Mostrar mensaje de error si existe -->
         <?php if ($mensaje): ?>
             <div style="background: #f8dbdb; color: #721c24; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
                 <?= htmlspecialchars($mensaje) ?>
             </div>
         <?php endif; ?>
 
+        <!-- Información estática (No editable aquí) -->
         <div class="info-group">
             <p><strong>Fecha:</strong> <?= date('d/m/Y H:i', strtotime($reserva['fecha_reserva'])) ?></p>
             <p><strong>Mesa:</strong> <?= htmlspecialchars($reserva['mesa_nombre']) ?> (<?= htmlspecialchars($reserva['sala_nombre']) ?>)</p>
@@ -66,6 +77,7 @@ try {
             <small style="color: #7f8c8d;">* Para cambiar fecha o mesa, cancele y cree una nueva reserva.</small>
         </div>
 
+        <!-- Formulario de Edición (Envía a PROCEDIMIENTO) -->
         <form method="POST" action="../PROCEDIMIENTOS/procesar_editar_reserva.php">
             <input type="hidden" name="id_reserva" value="<?= $reserva['id'] ?>">
             

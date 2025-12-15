@@ -1,8 +1,10 @@
 <?php
+// Inicia sesión
 session_start();
+// Requiere conexión a base de datos
 require_once __DIR__ . '/../../CONEXION/conexion.php';
 
-// Verificar que sea administrador
+// --- Verificación de sesión de Administrador ---
 if (!isset($_SESSION['loginok']) || $_SESSION['rol'] != 2) {
     header("Location: ../../PUBLIC/login.php");
     exit();
@@ -16,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $id_usuario = intval($_POST['id_usuario']);
 
-// Validar que no se elimine a sí mismo (por seguridad extra, aunque debería estar inactivo)
+// Validar que no se elimine a sí mismo
 if ($id_usuario == $_SESSION['id_usuario']) {
     header("Location: ../../PUBLIC/ADMIN/usuarios.php?error=no_puedes_eliminarte");
     exit();
@@ -25,17 +27,15 @@ if ($id_usuario == $_SESSION['id_usuario']) {
 try {
     $conn->beginTransaction();
     
-    // 1. Desvincular mesas asignadas por este usuario (poner a NULL)
-    // Aunque no es FK estricta, es bueno limpiar la referencia
+    // 1. Desvincular mesas asignadas activamente
     $stmt_mesas = $conn->prepare("UPDATE mesas SET asignado_por = NULL WHERE asignado_por = :id");
     $stmt_mesas->execute([':id' => $id_usuario]);
 
-    // 2. Eliminar ocupaciones asociadas (HISTORIAL)
-    // Como no usamos ON DELETE CASCADE en la BBDD, debemos hacerlo manualmente
+    // 2. Eliminar ocupaciones (historial) vinculadas al camarero
     $stmt_ocupaciones = $conn->prepare("DELETE FROM ocupaciones WHERE id_camarero = :id");
     $stmt_ocupaciones->execute([':id' => $id_usuario]);
 
-    // 3. Borrado físico del usuario
+    // 3. Eliminar físicamente al usuario de la tabla users
     $stmt = $conn->prepare("DELETE FROM users WHERE id = :id");
     $stmt->execute([':id' => $id_usuario]);
     
@@ -46,7 +46,7 @@ try {
     
 } catch (PDOException $e) {
     $conn->rollBack();
-    // Si falla por FK (ej: tiene ocupaciones), avisamos
+    // Manejo específico de errores de integridad referencial
     if ($e->getCode() == '23000') {
         header("Location: ../../PUBLIC/ADMIN/usuarios.php?error=usuario_con_historial");
     } else {
